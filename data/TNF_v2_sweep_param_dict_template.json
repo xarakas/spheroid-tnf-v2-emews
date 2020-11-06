@@ -1,0 +1,20 @@
+{  
+    "cell_definitions.cell_definition.custom_data.TNFR_binding_rate": {
+        "min":0.1, 
+        "max":0.3, 
+        "loc":0.2, 
+        "scale":0.01 
+    },
+    "cell_definitions.cell_definition.custom_data.TNFR_endocytosis_rate": { 
+        "min":0.05,
+        "max":0.15,
+        "loc":0.09625,
+        "scale":0.01 
+    },
+    "cell_definitions.cell_definition.custom_data.TNFR_recycling_rate": {
+        "min":0.1,
+        "max":1,
+        "loc":0.5,
+        "scale":0.01 
+    }
+}

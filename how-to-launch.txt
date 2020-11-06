@@ -1,0 +1,70 @@
+=========================================================================
+To launch EMEWS workflows in MN4 we need to run some commands beforehand:
+
+# assign more memory for swift VM
+salloc -p interactive --cpus-per-task=2
+
+# Required modules
+module load python java R/3.4.0 swiftt/1.4.3
+
+The first command will request 2 login nodes, and we are interested in that because we can't launch swift-t with 2GB of ram. Using 2 nodes allow us to gather 4GB, and thus to launch swift-t without issues.
+The second command will load swift-t and dependencies.
+
+=========================================================================
+
+This project forked from Gerard's repo, implements a basic model of the TNF fate model pulse experiments.
+The code for the multi-scale model is placed in data/PhysiBoSSv2.
+
+Before running any exploration, the TNF model must be compiled running the following commands:
+
+cd data/PhysiBoSSv2
+make
+cd ../..
+
+That's it! If it works, a binary file named spheroid_TNF_v2 should be generated.
+
+
+To perform the model exploration there are currently two implemented exploration strategies:
+
+=============
+- GA search 
+=============
+GA search uses a cost function f (defined in python/get_metrics.py) to find parameters that minimize f.
+Currently f is the minimization of the number of alive cells.
+
+The command to run the GA exploration
+bash swift/swift_run_eqpy.sh <EXPERIMENT_ID> <GA_PARAMS_FILE> (e.g. ${script_name} experiment_1 data/ga_params.json)"
+
+* <EXPERIMENT_ID>: and string that will be used as a name for the results folder ./experiments/<EXPERIMENT_ID>
+* <GA_PARAMS_FILE>: a json file with the input a parameters for the genetic algorithm
+
+===================
+- Parameter sweep 
+===================
+
+The sweep is a regular/random grid search that runs one simulation for each set of parameters present in the input file. 
+In addition to the parallel execution of the simulations this workflow also runs a script to summarize simulation outputs (scripts/summarize_simulation.py). To input for the sweep is a .txt with one json dictionary per line. The dictionary contains the parameters to be tested. There is a python script (scripts/generate_json_sweep.py to generate sweep input file using a template
+
+The command to run the parameter sweep:
+bash swift/swift_run_sweep.sh <EXPERIMENT_ID> <SWEEP_INPUT> (e.g. ${script_name} experiment_1 data/input.txt)
+
+In both cases, the .sh script will start the slurm job, so there is no need to call the sbatch command.
+To modify the job options, we need to modify directly the run_ga.sh file.
+
+The key parameters to tweak in the swift/swift_run_sweep.sh are the following four:
+
+PROCS=48 # total number of processes
+- QUEUE=main                                                             # defaul queue
+- WALLTIME=47:59:00                                                      # total time assigned to the run
+- PPN=3                                                                  # Processes per computing node
+- TURBINE_SBATCH_ARGS=--qos=bsc_ls                                       # This is for BSC MN4 queue system
+- EXECUTABLE_SOURCE=$EMEWS_PROJECT_ROOT/data/<MODEL BINARY>              # Path to the executable model file
+- DEFAULT_XML_SOURCE=$EMEWS_PROJECT_ROOT/data/<MODEL PARAMETER TEMPLATE> # Path to the input params template
+
+
+- the first is an integer indicating the number of experiment (to store several experiments or runs)
+- the second is the file with genetic algorithm global parameters
+- the third is the file with an initial population of ga_params values (population initialization, i.e. PhysiCell parameters to explore)
+- the fourth is the number of threads each PhysiCell simulation will use.
+
+

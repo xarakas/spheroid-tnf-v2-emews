@@ -1,0 +1,23 @@
+[
+    {
+        "name" : "cell_definitions.cell_definition.custom_data.TNFR_binding_rate",
+        "type" : "float",
+        "lower" : 0.1,
+        "upper" : 0.3,
+        "sigma": 0.01
+    },    
+    {
+        "name" : "cell_definitions.cell_definition.custom_data.TNFR_endocytosis_rate",
+        "type" : "float",
+        "lower" : 0.05,
+        "upper" : 0.15,
+        "sigma": 0.01
+    },    
+    {
+        "name" : "cell_definitions.cell_definition.custom_data.TNFR_recycling_rate",
+        "type" : "float",
+        "lower" : 0.1,
+        "upper" : 1.0,
+        "sigma": 0.01
+    }
+]
