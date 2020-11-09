@@ -89,10 +89,6 @@ app (file out, file err) run_model (string model_sh, string executable_path, str
     "bash" model_sh executable_path settings_file emews_root instance @stdout=out @stderr=err;
 }
 
-app (void o) move_file(string filepath, string folderpath) {
-  "mv" filepath folderpath;
-}
-
 app (void o) summarize_simulation (file summarize_py, string instance_dir) {
     "python" summarize_py instance_dir;
 }
@@ -123,9 +119,7 @@ app (void o) summarize_simulation (file summarize_py, string instance_dir) {
           (out,err) = run_model(model_sh, executable, xml_out, instance_dir) => {
             distances[repetition] = get_result(instance_dir, replication);
   	        summarize_simulation (summarize_py, instance_dir) => {
-                move_file(instance_dir + "output/metrics.txt", instance_dir) => {
                     rm_dir(instance_dir + "output/");
-                }
             }
           }
         }
