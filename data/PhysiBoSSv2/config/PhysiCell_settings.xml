@@ -238,10 +238,10 @@
 		<!-- example parameters from the template --> 
 
 		<!-- init file --> 
-		<init_cells_filename type="string" units="">./config/init.txt</init_cells_filename>
+		<init_cells_filename type="string" units="">../init.txt</init_cells_filename>
 
-		<bnd_file type="string" units="">./config/boolean_network/TNF_nodes.bnd</bnd_file>
-		<cfg_file type="string" units="">./config/boolean_network/TNF_conf.cfg</cfg_file>
+		<bnd_file type="string" units="">../boolean_network/TNF_nodes.bnd</bnd_file>
+		<cfg_file type="string" units="">../boolean_network/TNF_conf.cfg</cfg_file>
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
 
 		<time_add_tnf type="int" units="min">150</time_add_tnf> <!-- 150 -->
