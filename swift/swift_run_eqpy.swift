@@ -55,8 +55,8 @@ string count_template =
 import get_metrics
 
 instance_dir = '%s'
-# '30240'
-count = get_metrics.get_custom_cell_count(instance_dir)
+
+count = get_metrics.get_tumor_cell_count(instance_dir)
 """;
 
 app (file out, file err) run_model (string model_sh, string executable_path, string settings_file, string instance)
@@ -92,9 +92,9 @@ app (void o) summarize_simulation (file summarize_py, string instance_dir) {
         python_persist(code, "'ignore'") =>
         (out,err) = run_model(model_sh, executable, xml_out, instance_dir) => {
           cell_counts[replication] = get_result(instance_dir);
-          summarize_simulation (summarize_py, instance_dir); 
-          // =>
-          // rm_dir(instance_dir);
+          summarize_simulation (summarize_py, instance_dir) => {
+            rm_dir(instance_dir);
+          }
         }
       }
     }

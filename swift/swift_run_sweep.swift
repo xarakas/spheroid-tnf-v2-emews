@@ -88,9 +88,9 @@ main() {
         python_persist(code, "'ignore'") => {
           (out,err) = run_model(model_sh, executable, xml_out, instance_dir) => {
             // results[i] = get_result(instance_dir);
-            summarize_simulation (summarize_py, instance_dir); 
-            // =>
-            //   rm_dir(instance_dir + "output/");
+            summarize_simulation (summarize_py, instance_dir) => {
+              rm_dir(instance_dir + "output/");
+            } 
           }
         }
       }
