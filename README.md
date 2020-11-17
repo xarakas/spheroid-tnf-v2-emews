@@ -1,7 +1,11 @@
-EMEWS project template
+PhysiBoSSv2 - EMEWS
 -----------------------
+This EMEWS workflow incorporates PhysiBoSSv2 using the spheroid-TNF-v2 model to allow parallel execution and large-scale model exploration capabilities.
 
-You have just created an EMEWS project.
+For more information regarding installation and execution, please see the file how-to-launch.txt
+
+More info regarding PhysiBoSSv2:
+https://github.com/bsc-life/PhysiBoSSv2
 
 This project is compatible with swift-t v. 1.3+. Earlier
 versions will NOT work.

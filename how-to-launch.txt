@@ -38,6 +38,13 @@ bash swift/swift_run_eqpy.sh <EXPERIMENT_ID> <GA_PARAMS_FILE> (e.g. ${script_nam
 * <EXPERIMENT_ID>: and string that will be used as a name for the results folder ./experiments/<EXPERIMENT_ID>
 * <GA_PARAMS_FILE>: a json file with the input a parameters for the genetic algorithm
 
+If you wish to run the GA for calibrating PhysiBoSSv2 parameters, you can issue the following command:
+bash swift/swift_run_eqpy_compare.sh <EXPERIMENT_ID> <GA_PARAMS_FILE> <DISTANCE_TYPE>(e.g. ${script_name} experiment_1 data/ga_params.json euclidean)"
+
+* <DISTANCE_TYPE>: One out of three implemented distance types {'euclidean', 'dtw', 'l1'}
+In this case, the output of PhysiBoSSv2 simulations is compared against two known and validated golden standard cases.
+
+
 ===================
 - Parameter sweep 
 ===================
