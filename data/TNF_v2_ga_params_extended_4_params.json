@@ -1,0 +1,30 @@
+[
+    {
+        "name" : "cell_definitions.cell_definition.custom_data.TNFR_binding_rate",
+        "type" : "float",
+        "lower" : 0.01,
+        "upper" : 1.0,
+        "sigma": 0.01
+    },    
+    {
+        "name" : "cell_definitions.cell_definition.custom_data.TNFR_endocytosis_rate",
+        "type" : "float",
+        "lower" : 0.01,
+        "upper" : 1.0,
+        "sigma": 0.01
+    },    
+    {
+        "name" : "cell_definitions.cell_definition.custom_data.TNFR_recycling_rate",
+        "type" : "float",
+        "lower" : 0.01,
+        "upper" : 1.0,
+        "sigma": 0.01
+    },
+    {
+        "name" : "cell_definitions.cell_definition.phenotype.cycle.phase_transition_rates.rate",
+        "type" : "float",
+        "lower" : 0.0015,
+        "upper" : 0.0075,
+        "sigma":  0.001
+    }
+]

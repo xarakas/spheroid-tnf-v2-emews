@@ -190,10 +190,11 @@ void tumor_cell_phenotype_with_signaling( Cell* pCell, Phenotype& phenotype, dou
 		pCell->functions.update_phenotype = NULL;
 		return;
 	}
-
-	update_cell_and_death_parameters_O2_based(pCell, phenotype, dt);
+	if (parameters.bools("update_pc_parameters_O2_based"))
+	{
+		update_cell_and_death_parameters_O2_based(pCell, phenotype, dt);
+	}
 	tnf_bm_interface_main(pCell, phenotype, dt);
-
 }
 
 // cell coloring function for ploting the svg files
