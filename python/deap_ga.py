@@ -236,8 +236,8 @@ def run():
 
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     toolbox.register("evaluate", obj_func)
-    toolbox.register("mate", cxUniform, indpb=0.5)
-    toolbox.register("mutate", custom_mutate, indpb=0.2)
+    toolbox.register("mate", cxUniform, indpb=0.75)
+    toolbox.register("mutate", custom_mutate, indpb=0.5)
     toolbox.register("select", tools.selTournament, tournsize=3)
     toolbox.register("map", queue_map)
 
@@ -252,7 +252,7 @@ def run():
     stats.register("ts", timestamp)
 
     start_time = time.time()
-    pop, log = eaSimpleExtended(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=num_iterations, stats=stats, halloffame=hof, verbose=True, checkpoint=checkpoint_file_input)
+    pop, log = eaSimpleExtended(pop, toolbox, cxpb=0.75, mutpb=0.5, ngen=num_iterations, stats=stats, halloffame=hof, verbose=True, checkpoint=checkpoint_file_input)
 
     end_time = time.time()
 
