@@ -154,7 +154,9 @@ def get_simulation_dist(instance_dir, replication, emews_root):
                     k2 = custom_data[0].firstChild.nodeValue
                     custom_data = doc.getElementsByTagName("TNFR_recycling_rate")
                     k3 = custom_data[0].firstChild.nodeValue
-                    logging.debug("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(replication, k1, k2, k3, output, eucl_dist(alive, tumor_cells), eucl_dist(apoptotic, death_cells),eucl_dist(necrotic, necrosis_cells), outputDTWa+outputDTWap+outputDTWn,outputDTWa, outputDTWap, outputDTWn, outputl1a+outputl1ap+outputl1n,outputl1a,outputl1ap,outputl1n,(end_eucl-start_eucl).total_seconds()*1000,(end_dtw-start_dtw).total_seconds()*1000,(end_l1-start_l1).total_seconds()*1000 ))
+                    custom_data = doc.getElementsByTagName("rate")
+                    k4 = custom_data[0].firstChild.nodeValue
+                    logging.debug("{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}".format(replication, k1, k2, k3, k4, output, eucl_dist(alive, tumor_cells), eucl_dist(apoptotic, death_cells),eucl_dist(necrotic, necrosis_cells), outputDTWa+outputDTWap+outputDTWn,outputDTWa, outputDTWap, outputDTWn, outputl1a+outputl1ap+outputl1n,outputl1a,outputl1ap,outputl1n,(end_eucl-start_eucl).total_seconds()*1000,(end_dtw-start_dtw).total_seconds()*1000,(end_l1-start_l1).total_seconds()*1000 ))
     else:
         logging.error("File metrics.txt not found!")
     if distance_type_id == 'dtw':
