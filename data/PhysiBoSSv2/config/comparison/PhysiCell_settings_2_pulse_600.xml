@@ -158,7 +158,7 @@
 					<!-- using higher than normal significant digits to match divisions in default code -->
 					<phase_transition_rates units="1/min"> 
 						<!-- Cycle duration -->
-						<rate start_index="0" end_index="0" fixed_duration="false">0.0015</rate>
+						<rate start_index="0" end_index="0" fixed_duration="true">0.0015</rate>
 					</phase_transition_rates>
 				</cycle>
 				
@@ -166,7 +166,7 @@
 					<model code="100" name="apoptosis"> 
 						<rate units="1/min">5.31667e-05</rate>
 						<phase_transition_rates units="1/min">
-							<rate start_index="0" end_index="1" fixed_duration="false">0.00193798</rate>
+							<rate start_index="0" end_index="1" fixed_duration="true">0.00193798</rate>
 						</phase_transition_rates>
 						<parameters>
 							<unlysed_fluid_change_rate units="1/min">0.05</unlysed_fluid_change_rate>
