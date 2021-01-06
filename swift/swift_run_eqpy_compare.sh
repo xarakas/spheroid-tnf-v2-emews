@@ -2,10 +2,12 @@
 
 set -eu
 
-if [ "$#" -lt 3 ]; then
+if [ "$#" -lt 4 ]; then
   script_name=$(basename $0)
-  echo "Usage: ${script_name} EXPERIMENT_ID GA_PARAMS_FILE DISTANCE_TYPE CHECKPOINT_FILE (e.g. ${script_name} experiment_1 data/ga_params.json dtw path/to/ga_checkpoint.pkl)"
+  echo "Usage: ${script_name} EXPERIMENT_ID GA_PARAMS_FILE DISTANCE_TYPE TERMINATION_CRIT CHECKPOINT_FILE (e.g. ${script_name} experiment_1 data/ga_params.json dtw 30 path/to/ga_checkpoint.pkl)"
   echo "DISTANCE_TYPE is 'euclidean' for Euclidean, 'dtw' for DTW, and 'l1' for l_1"
+  echo "TERMINATION_CRIT: if integer is given, then max number of generations,"
+  echo "                  else is lower limit of population fitness variance difference for 5 consecutive generations"
   exit 1
 fi
 
@@ -16,8 +18,8 @@ export EMEWS_PROJECT_ROOT=$( cd $( dirname $0 )/.. ; /bin/pwd )
 # source some utility functions used by EMEWS in this script
 source "${EMEWS_PROJECT_ROOT}/etc/emews_utils.sh"
 
-if [ "$#" -eq 4 ]; then
-  export CHECKPOINT_FILE=$EMEWS_PROJECT_ROOT/$4
+if [ "$#" -eq 5 ]; then
+  export CHECKPOINT_FILE=$EMEWS_PROJECT_ROOT/$5
 fi
 
 export EXPID=$1
@@ -25,6 +27,8 @@ export TURBINE_OUTPUT=$EMEWS_PROJECT_ROOT/experiments/$EXPID
 check_directory_exists
 
 export DISTANCE_TYPE_ID=$3
+export TERMINATION_CRIT=$4
+
 # TODO edit the number of processes as required (must be more than 3).
 export PROCS=96
 
@@ -73,9 +77,9 @@ cp $GA_PARAMS_FILE_SOURCE $GA_PARAMS_FILE_OUT
 CMP_XML_OUT=$DEFAULT_XML_OUT/comparison
 
 SEED=1234
-ITERATIONS=3
+ITERATIONS=10
 COMPARISONS=2 # Comparisons. Do NOT change this, unless number of files in the location "DEFAULT_XML_OUT/comparison/" changes.
-NUM_POPULATION=2
+NUM_POPULATION=4
 NUM_REPETITIONS=2 # take the average of NUM_REPETITIONS similar runs (using the same GA individual)
 
 CMD_LINE_ARGS="$* -seed=$SEED -ni=$ITERATIONS -nv=$COMPARISONS -np=$NUM_POPULATION -nr=$NUM_REPETITIONS -exe=$EXECUTABLE_OUT -settings=$CMP_XML_OUT -ga_parameters=$GA_PARAMS_FILE_OUT"
