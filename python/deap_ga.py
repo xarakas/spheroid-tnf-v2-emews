@@ -20,6 +20,7 @@ import eqpy, ga_utils
 
 experiment_folder = os.getenv('TURBINE_OUTPUT')
 checkpoint_file_input = os.getenv('CHECKPOINT_FILE')
+termination_crit = os.getenv('TERMINATION_CRIT')
 checkpoint_file = os.path.join(experiment_folder,"ga_checkpoint.pkl")
 logging.basicConfig(format='%(message)s',filename=os.path.join(experiment_folder,"generations.log"),level=logging.DEBUG)
 # list of ga_utils parameter objects
@@ -74,6 +75,12 @@ def printf(val):
 # Not used
 def obj_func(x):
     return 0
+
+def num(s):
+    try:
+        return int(s)
+    except ValueError:
+        return float(s)
 
 # {"batch_size":512,"epochs":51,"activation":"softsign",
 #"dense":"2000 1000 1000 500 100 50","optimizer":"adagrad","drop":0.1378,
@@ -157,50 +164,110 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
 
     if halloffame is not None:
         halloffame.update(population)
-
+    gen_variance = []
+    variance_log = []
     record = stats.compile(population) if stats else {}
     logbook.record(gen=0, nevals=len(invalid_ind), **record)
     if verbose:
         printf("Logbookstream: {}\nhalloffame: {}\n".format(logbook.stream, halloffame))
         for p in population:
             logging.debug("0, {}, {}, {}".format(0, p, p.fitness))
+    for p in population:
+        gen_variance.append(p.fitness.values)
+    variance_log.append(np.var(gen_variance))
+    logging.info("Initial Generation fitness variance = {}".format(variance_log))
+    
+    logging.debug("Stats: {}".format(stats))
+    logging.debug("Record: {}, length: {}".format(record, len(record)))
+    logging.debug("Term crit type: {}".format(type(ngen)))
+    if type(ngen)==int: # Run for ngens
+        logging.debug("Following normal termination criterion process.")
+        # Begin the generational process
+        for gen in range(1, ngen + 1):
+            # Select the next generation individuals
+            offspring = toolbox.select(population, len(population))
 
-    # Begin the generational process
-    for gen in range(1, ngen + 1):
-        # Select the next generation individuals
-        offspring = toolbox.select(population, len(population))
+            # Vary the pool of individuals
+            offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
 
-        # Vary the pool of individuals
-        offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
+            # Evaluate the individuals with an invalid fitness
+            invalid_ind = [ind for ind in population if not ind.fitness.valid]
+            fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+            for ind, fit in zip(invalid_ind, fitnesses):
+                ind.fitness.values = fit
 
-        # Evaluate the individuals with an invalid fitness
-        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
-        for ind, fit in zip(invalid_ind, fitnesses):
-            ind.fitness.values = fit
+            # Update the hall of fame with the generated individuals
+            if halloffame is not None:
+                halloffame.update(offspring)
 
-        # Update the hall of fame with the generated individuals
-        if halloffame is not None:
-            halloffame.update(offspring)
+            # Replace the current population by the offspring
+            population[:] = offspring
 
-        # Replace the current population by the offspring
-        population[:] = offspring
+            # Append the current generation statistics to the logbook
+            record = stats.compile(population) if stats else {}
+            logbook.record(gen=gen, nevals=len(invalid_ind), **record)
+            # Fill the dictionary using the dict(key=value[, ...]) constructor
+            cp = dict(population=population, generation=gen, halloffame=halloffame,
+                       logbook=logbook, rndstate=random.getstate())
+            with open(checkpoint_file, "wb") as cp_file:
+                pickle.dump(cp, cp_file)
+            logging.info("Generation {} Stored at {}".format(gen, time.strftime("%H:%M:%S", time.localtime())))
+            if verbose:
+                printf("Logbookstream: {}\nhalloffame: {}\n".format(logbook.stream, halloffame))
+                for p in population:
+                    logging.debug("0, {}, {}, {}".format(gen, p, p.fitness))
+                for h in halloffame:
+                    logging.debug("-1, {}, {}, {}".format(gen, h, h.fitness))
+    else: # Run while population fitness variance is less than limit for 5 consecutive generations
+        # Begin the generational process
+        counter = 0
+        while counter<6:
+            logging.debug("Into while, counter = {}".format(counter))
+            gen_variance = []
+            # Select the next generation individuals
+            offspring = toolbox.select(population, len(population))
 
-        # Append the current generation statistics to the logbook
-        record = stats.compile(population) if stats else {}
-        logbook.record(gen=gen, nevals=len(invalid_ind), **record)
-        # Fill the dictionary using the dict(key=value[, ...]) constructor
-        cp = dict(population=population, generation=gen, halloffame=halloffame,
-                   logbook=logbook, rndstate=random.getstate())
-        with open(checkpoint_file, "wb") as cp_file:
-            pickle.dump(cp, cp_file)
-        logging.info("Generation {} Stored at {}".format(gen, time.strftime("%H:%M:%S", time.localtime())))
-        if verbose:
-            printf("Logbookstream: {}\nhalloffame: {}\n".format(logbook.stream, halloffame))
+            # Vary the pool of individuals
+            offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
+
+            # Evaluate the individuals with an invalid fitness
+            invalid_ind = [ind for ind in population if not ind.fitness.valid]
+            # invalid_ind = [ind for ind in population if not in visited_inds]
+            fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+            for ind, fit in zip(invalid_ind, fitnesses):
+                ind.fitness.values = fit
+
+            # Update the hall of fame with the generated individuals
+            if halloffame is not None:
+                halloffame.update(offspring)
+
+            # Replace the current population by the offspring
+            population[:] = offspring
+
+            # Append the current generation statistics to the logbook
+            record = stats.compile(population) if stats else {}
+            logbook.record(gen=gen, nevals=len(invalid_ind), **record)
+            # Fill the dictionary using the dict(key=value[, ...]) constructor
+            cp = dict(population=population, generation=gen, halloffame=halloffame,
+                       logbook=logbook, rndstate=random.getstate())
+            with open(checkpoint_file, "wb") as cp_file:
+                pickle.dump(cp, cp_file)
+            logging.info("Generation {} Stored at {}".format(gen, time.strftime("%H:%M:%S", time.localtime())))
+            if verbose:
+                printf("Logbookstream: {}\nhalloffame: {}\n".format(logbook.stream, halloffame))
+                for p in population:
+                    logging.debug("0, {}, {}, {}".format(gen, p, p.fitness))
+                for h in halloffame:
+                    logging.debug("-1, {}, {}, {}".format(gen, h, h.fitness))
             for p in population:
-                logging.debug("0, {}, {}, {}".format(gen, p, p.fitness))
-            for h in halloffame:
-                logging.debug("-1, {}, {}, {}".format(gen, h, h.fitness))
+                gen_variance.append(p.fitness.values)
+            variance_log.append(np.var(gen_variance))
+            if abs(variance_log[-1]-variance_log[-2]) <= ngens:
+                counter = counter + 1
+            else:
+                counter = 0
+            logging.debug("Generation_-1 fitness variance difference = {}, counter is now: {}".format(abs(variance_log[-1]-variance_log[-2]), counter))
+
     logging.info("{}\n".format(logbook.stream))
     return population, logbook
 
@@ -217,8 +284,9 @@ def run():
     printf("Parameters: {}".format(parameters))
     logging.info("Parameters: {}".format(parameters))
     distance_type_id = os.getenv('DISTANCE_TYPE_ID')
-    logging.info("Distance type - [{}]\tCheckpoint file: {}\n".format(distance_type_id,checkpoint_file_input))
+    logging.info("Distance type - [{}]\t Termination criterion - [{}]\tCheckpoint file: {}\n".format(distance_type_id,termination_crit,checkpoint_file_input))
     logging.info("Begin at: {}".format(time.strftime("%H:%M:%S", time.localtime())))
+    # num_iterations not used
     (num_iterations, num_population, seed, ga_parameters_file) = eval('{}'.format(parameters))
     random.seed(seed)
     ga_parameters = ga_utils.create_parameters(ga_parameters_file)
@@ -250,9 +318,10 @@ def run():
     stats.register("min", np.min)
     stats.register("max", np.max)
     stats.register("ts", timestamp)
+    logging.debug("INIT Stats: {}".format(stats))
 
     start_time = time.time()
-    pop, log = eaSimpleExtended(pop, toolbox, cxpb=0.75, mutpb=0.5, ngen=num_iterations, stats=stats, halloffame=hof, verbose=True, checkpoint=checkpoint_file_input)
+    pop, log = eaSimpleExtended(pop, toolbox, cxpb=0.75, mutpb=0.5, ngen=num(termination_crit), stats=stats, halloffame=hof, verbose=True, checkpoint=checkpoint_file_input)
 
     end_time = time.time()
 
