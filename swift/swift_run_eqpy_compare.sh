@@ -7,7 +7,7 @@ if [ "$#" -lt 4 ]; then
   echo "Usage: ${script_name} EXPERIMENT_ID GA_PARAMS_FILE DISTANCE_TYPE TERMINATION_CRIT CHECKPOINT_FILE (e.g. ${script_name} experiment_1 data/ga_params.json dtw 30 path/to/ga_checkpoint.pkl)"
   echo "DISTANCE_TYPE is 'euclidean' for Euclidean, 'dtw' for DTW, and 'l1' for l_1"
   echo "TERMINATION_CRIT: if integer is given, then max number of generations,"
-  echo "                  else is lower limit of population fitness variance difference for 5 consecutive generations"
+  echo "                  else is lower limit of population fitness variance for 5 consecutive generations"
   exit 1
 fi
 
