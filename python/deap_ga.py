@@ -177,8 +177,8 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
     variance_log.append(np.var(gen_variance))
     logging.info("Initial Generation fitness variance = {}".format(variance_log))
     
-    logging.debug("Stats: {}".format(stats))
-    logging.debug("Record: {}, length: {}".format(record, len(record)))
+    # logging.debug("Stats: {}".format(stats))
+    # logging.debug("Record: {}, length: {}".format(record, len(record)))
     logging.debug("Term crit type: {}".format(type(ngen)))
     if type(ngen)==int: # Run for ngens
         logging.debug("Following normal termination criterion process.")
@@ -191,7 +191,7 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
 
             # Evaluate the individuals with an invalid fitness
-            invalid_ind = [ind for ind in population if not ind.fitness.valid]
+            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
             fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
             for ind, fit in zip(invalid_ind, fitnesses):
                 ind.fitness.values = fit
@@ -221,9 +221,10 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
     else: # Run while population fitness variance is less than limit for 5 consecutive generations
         # Begin the generational process
         counter = 0
-        while counter<6:
+        gen = 1
+        while counter<5:
             logging.debug("Into while, counter = {}".format(counter))
-            gen_variance = []
+            # gen_variance = []
             # Select the next generation individuals
             offspring = toolbox.select(population, len(population))
 
@@ -231,7 +232,7 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
 
             # Evaluate the individuals with an invalid fitness
-            invalid_ind = [ind for ind in population if not ind.fitness.valid]
+            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
             # invalid_ind = [ind for ind in population if not in visited_inds]
             fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
             for ind, fit in zip(invalid_ind, fitnesses):
@@ -259,14 +260,16 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
                     logging.debug("0, {}, {}, {}".format(gen, p, p.fitness))
                 for h in halloffame:
                     logging.debug("-1, {}, {}, {}".format(gen, h, h.fitness))
-            for p in population:
-                gen_variance.append(p.fitness.values)
-            variance_log.append(np.var(gen_variance))
-            if abs(variance_log[-1]-variance_log[-2]) <= ngens:
+            # for p in population:
+            #     gen_variance.append(p.fitness.values)
+            # variance_log.append(np.var(gen_variance))
+            # if abs(variance_log[-1]-variance_log[-2]) <= ngens:
+            if math.pow(float(logbook.select("std")[-1]),2) <= ngen:
                 counter = counter + 1
             else:
                 counter = 0
-            logging.debug("Generation_-1 fitness variance difference = {}, counter is now: {}".format(abs(variance_log[-1]-variance_log[-2]), counter))
+            logging.debug("Generation fitness variance = {}, counter is now: {}".format(math.pow(float(logbook.select("std")[-1]),2), counter))
+            gen = gen + 1
 
     logging.info("{}\n".format(logbook.stream))
     return population, logbook
@@ -318,7 +321,6 @@ def run():
     stats.register("min", np.min)
     stats.register("max", np.max)
     stats.register("ts", timestamp)
-    logging.debug("INIT Stats: {}".format(stats))
 
     start_time = time.time()
     pop, log = eaSimpleExtended(pop, toolbox, cxpb=0.75, mutpb=0.5, ngen=num(termination_crit), stats=stats, halloffame=hof, verbose=True, checkpoint=checkpoint_file_input)
