@@ -2,12 +2,18 @@
 
 set -eu
 
-if [ "$#" -lt 4 ]; then
+if [ "$#" -lt 8 ]; then
   script_name=$(basename $0)
-  echo "Usage: ${script_name} EXPERIMENT_ID GA_PARAMS_FILE DISTANCE_TYPE TERMINATION_CRIT CHECKPOINT_FILE (e.g. ${script_name} experiment_1 data/ga_params.json dtw 30 path/to/ga_checkpoint.pkl)"
+  echo "Usage: ${script_name} EXPERIMENT_ID GA_PARAMS_FILE DISTANCE_TYPE TERMINATION_CRIT POP_NUM CROSSOVER_PROB MUTATION_PROB TOURNAMENT_SIZE CHECKPOINT_FILE"
+  echo "(e.g. ${script_name} experiment_1 data/ga_params.json dtw 30 0.75 0.5 3 path/to/ga_checkpoint.pkl)"
   echo "DISTANCE_TYPE is 'euclidean' for Euclidean, 'dtw' for DTW, and 'l1' for l_1"
   echo "TERMINATION_CRIT: if integer is given, then max number of generations,"
   echo "                  else is lower limit of population fitness variance for 5 consecutive generations"
+  echo "POP_NUM: integer, number of individuals in the population"
+  echo "CROSSOVER_PROB: float \\in [0,1] - probability for applying the crossover operator,"
+  echo "MUTATION_PROB: float \\in [0,1] - probability for applying the mutation operator,"
+  echo "TOURNAMENT_SIZE: number of individuals to inclide in each tournament for selection"
+  echo "CHECKPOINT_FILE (optional): path to a .pkl file to continue a previous experiment"
   exit 1
 fi
 
@@ -18,8 +24,9 @@ export EMEWS_PROJECT_ROOT=$( cd $( dirname $0 )/.. ; /bin/pwd )
 # source some utility functions used by EMEWS in this script
 source "${EMEWS_PROJECT_ROOT}/etc/emews_utils.sh"
 
-if [ "$#" -eq 5 ]; then
-  export CHECKPOINT_FILE=$EMEWS_PROJECT_ROOT/$5
+
+if [ "$#" -eq 9 ]; then
+  export CHECKPOINT_FILE=$EMEWS_PROJECT_ROOT/$9
 fi
 
 export EXPID=$1
@@ -28,6 +35,10 @@ check_directory_exists
 
 export DISTANCE_TYPE_ID=$3
 export TERMINATION_CRIT=$4
+export POP_NUM=$5
+export CROSSOVER_PROB=$6
+export MUTATION_PROB=$7
+export TOURNAMENT_SIZE=$8
 
 # TODO edit the number of processes as required (must be more than 3).
 export PROCS=96

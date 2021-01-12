@@ -21,6 +21,10 @@ import eqpy, ga_utils
 experiment_folder = os.getenv('TURBINE_OUTPUT')
 checkpoint_file_input = os.getenv('CHECKPOINT_FILE')
 termination_crit = os.getenv('TERMINATION_CRIT')
+crossover_prob = float(os.getenv('CROSSOVER_PROB'))
+mutation_prob = float(os.getenv('MUTATION_PROB'))
+tournament_size = int(os.getenv('TOURNAMENT_SIZE'))
+pop_num = int(os.getenv('POP_NUM'))
 checkpoint_file = os.path.join(experiment_folder,"ga_checkpoint.pkl")
 logging.basicConfig(format='%(message)s',filename=os.path.join(experiment_folder,"generations.log"),level=logging.DEBUG)
 # list of ga_utils parameter objects
@@ -176,7 +180,6 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
         gen_variance.append(p.fitness.values)
     variance_log.append(np.var(gen_variance))
     logging.info("Initial Generation fitness variance = {}".format(variance_log))
-    
     # logging.debug("Stats: {}".format(stats))
     # logging.debug("Record: {}, length: {}".format(record, len(record)))
     logging.debug("Term crit type: {}".format(type(ngen)))
@@ -284,13 +287,14 @@ def run():
     eqpy.OUT_put("Params")
     parameters = eqpy.IN_get()
     # parse params
-    printf("Parameters: {}".format(parameters))
-    logging.info("Parameters: {}".format(parameters))
+    # printf("Parameters: {}".format(parameters))
+    # logging.info("Parameters: {}".format(parameters))
+    (num_iterations, num_population, seed, ga_parameters_file) = eval('{}'.format(parameters))
     distance_type_id = os.getenv('DISTANCE_TYPE_ID')
+    logging.info("No. of population: {}, Random seed: {}, GA parameters file: {}".format(pop_num, seed, ga_parameters_file))
     logging.info("Distance type - [{}]\t Termination criterion - [{}]\tCheckpoint file: {}\n".format(distance_type_id,termination_crit,checkpoint_file_input))
     logging.info("Begin at: {}".format(time.strftime("%H:%M:%S", time.localtime())))
     # num_iterations not used
-    (num_iterations, num_population, seed, ga_parameters_file) = eval('{}'.format(parameters))
     random.seed(seed)
     ga_parameters = ga_utils.create_parameters(ga_parameters_file)
     global transformer
@@ -307,14 +311,14 @@ def run():
 
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
     toolbox.register("evaluate", obj_func)
-    toolbox.register("mate", cxUniform, indpb=0.75)
-    toolbox.register("mutate", custom_mutate, indpb=0.5)
-    toolbox.register("select", tools.selTournament, tournsize=3)
+    toolbox.register("mate", cxUniform, indpb=crossover_prob)
+    toolbox.register("mutate", custom_mutate, indpb=mutation_prob)
+    toolbox.register("select", tools.selTournament, tournsize=tournament_size)
     toolbox.register("map", queue_map)
 
-    pop = toolbox.population(n=num_population)
+    pop = toolbox.population(n=pop_num)
 
-    hof = tools.HallOfFame(num_population)
+    hof = tools.HallOfFame(pop_num)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     stats.register("avg", np.mean)
     stats.register("std", np.std)
@@ -323,7 +327,7 @@ def run():
     stats.register("ts", timestamp)
 
     start_time = time.time()
-    pop, log = eaSimpleExtended(pop, toolbox, cxpb=0.75, mutpb=0.5, ngen=num(termination_crit), stats=stats, halloffame=hof, verbose=True, checkpoint=checkpoint_file_input)
+    pop, log = eaSimpleExtended(pop, toolbox, cxpb=crossover_prob, mutpb=mutation_prob, ngen=num(termination_crit), stats=stats, halloffame=hof, verbose=True, checkpoint=checkpoint_file_input)
 
     end_time = time.time()
 

@@ -2,9 +2,17 @@
 
 set -eu
 
-if [ "$#" -ne 2 ]; then
+if [ "$#" -lt 7 ]; then
   script_name=$(basename $0)
-  echo "Usage: ${script_name} EXPERIMENT_ID GA_PARAMS_FILE (e.g. ${script_name} experiment_1 data/ga_params.json)"
+  echo "Usage: ${script_name} EXPERIMENT_ID GA_PARAMS_FILE TERMINATION_CRIT POP_NUM CROSSOVER_PROB MUTATION_PROB TOURNAMENT_SIZE CHECKPOINT_FILE"
+  echo "(e.g. ${script_name} experiment_1 data/ga_params.json 30 0.75 0.5 3 path/to/ga_checkpoint.pkl)"
+  echo "TERMINATION_CRIT: if integer is given, then max number of generations,"
+  echo "                  else is lower limit of population fitness variance for 5 consecutive generations"
+  echo "POP_NUM: integer, number of individuals in the population"
+  echo "CROSSOVER_PROB: float \\in [0,1] - probability for applying the crossover operator,"
+  echo "MUTATION_PROB: float \\in [0,1] - probability for applying the mutation operator,"
+  echo "TOURNAMENT_SIZE: number of individuals to inclide in each tournament for selection"
+  echo "CHECKPOINT_FILE (optional): path to a .pkl file to continue a previous experiment"
   exit 1
 fi
 
@@ -16,19 +24,29 @@ export EMEWS_PROJECT_ROOT=$( cd $( dirname $0 )/.. ; /bin/pwd )
 source "${EMEWS_PROJECT_ROOT}/etc/emews_utils.sh"
 
 
+if [ "$#" -eq 8 ]; then
+  export CHECKPOINT_FILE=$EMEWS_PROJECT_ROOT/$8
+fi
+
 export EXPID=$1
 export TURBINE_OUTPUT=$EMEWS_PROJECT_ROOT/experiments/$EXPID
 check_directory_exists
 
-# TODO edit the number of processes as required.
-export PROCS=90
+export TERMINATION_CRIT=$3
+export POP_NUM=$4
+export CROSSOVER_PROB=$5
+export MUTATION_PROB=$6
+export TOURNAMENT_SIZE=$7
+
+# TODO edit the number of processes as required (must be more than 3).
+export PROCS=96
 
 # TODO edit QUEUE, WALLTIME, PPN, AND TURNBINE_JOBNAME
 # as required. Note that QUEUE, WALLTIME, PPN, AND TURNBINE_JOBNAME will
 # be ignored if MACHINE flag (see below) is not set
 export QUEUE=main
 export WALLTIME=24:00:00
-export PPN=3
+export PPN=6
 export TURBINE_JOBNAME="${EXPID}_job"
 
 # Extra argument passed to SLURM script
