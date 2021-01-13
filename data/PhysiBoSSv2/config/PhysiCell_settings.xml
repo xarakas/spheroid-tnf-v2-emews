@@ -87,7 +87,8 @@
 	</domain>
 	
 	<overall>
-		<max_time units="min">1440</max_time>
+		<!-- <max_time units="min">1440</max_time> -->
+		<max_time units="min">4320</max_time>
 		<time_units>min</time_units>
 		<space_units>micron</space_units>
 
@@ -158,8 +159,8 @@
 					<!-- using higher than normal significant digits to match divisions in default code -->
 					<phase_transition_rates units="1/min"> 
 						<!-- Cycle duration -->
-<!--                        <rate start_index="0" end_index="0" fixed_duration="true">0.0015</rate> -->
-					<rate start_index="0" end_index="0" fixed_duration="false">0.0075</rate>  
+						<rate start_index="0" end_index="0" fixed_duration="false">0.0075</rate>
+>>>>>>> 869320a... new drug policy experiment settings (same with sweep)
 					</phase_transition_rates>
 				</cycle>
 				
@@ -245,7 +246,7 @@
 		<cfg_file type="string" units="">../boolean_network/TNF_conf.cfg</cfg_file>
 		<maboss_time_step type="double" units="dimensionless">10.</maboss_time_step>
 
-		<time_add_tnf type="int" units="min">150</time_add_tnf> <!-- 150 -->
+		<time_add_tnf type="int" units="min">600</time_add_tnf> <!-- 150 -->
 		<duration_add_tnf type="int" units="min">10</duration_add_tnf> <!-- 10 -->
 		<concentration_tnf type="double" units="TNF/um^3"> 0.02 </concentration_tnf> <!-- 0.5 ng/mL -->
 		<time_remove_tnf type="int" units="min">100000</time_remove_tnf> <!-- 8000 -->
