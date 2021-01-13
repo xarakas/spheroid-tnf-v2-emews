@@ -146,6 +146,7 @@ def timestamp(scores):
 
 def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
              halloffame=None, verbose=__debug__, checkpoint=None):
+    visited_inds = {}
     # If previous sim has failed, or we want to continue from previous generation
     if checkpoint:
         # A file name has been given, then load the data from the file
@@ -161,10 +162,12 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
         logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
 
     # Evaluate the individuals with an invalid fitness
-    invalid_ind = [ind for ind in population if not ind.fitness.valid]
+    # invalid_ind = [ind for ind in population if not ind.fitness.valid]
+    invalid_ind = [ind for ind in population if (not ind.fitness.valid) and (not str(ind) in visited_inds)]
     fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
     for ind, fit in zip(invalid_ind, fitnesses):
         ind.fitness.values = fit
+        visited_inds[str(ind)] = fit
 
     if halloffame is not None:
         halloffame.update(population)
@@ -173,13 +176,13 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
     record = stats.compile(population) if stats else {}
     logbook.record(gen=0, nevals=len(invalid_ind), **record)
     if verbose:
-        printf("Logbookstream: {}\nhalloffame: {}\n".format(logbook.stream, halloffame))
+        # printf("Logbookstream: {}\nhalloffame: {}\n".format(logbook.stream, halloffame))
         for p in population:
             logging.debug("0, {}, {}, {}".format(0, p, p.fitness))
-    for p in population:
-        gen_variance.append(p.fitness.values)
-    variance_log.append(np.var(gen_variance))
-    logging.info("Initial Generation fitness variance = {}".format(variance_log))
+    # for p in population:
+    #     gen_variance.append(p.fitness.values)
+    # variance_log.append(np.var(gen_variance))
+    logging.info("Initial Generation fitness variance = {}".format(math.pow(float(logbook.select("std")[-1]),2)))
     # logging.debug("Stats: {}".format(stats))
     # logging.debug("Record: {}, length: {}".format(record, len(record)))
     logging.debug("Term crit type: {}".format(type(ngen)))
@@ -192,12 +195,18 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
 
             # Vary the pool of individuals
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-
+            for ind in offspring:
+                try:
+                    ind.fitness.values = visited_inds[str(ind)]
+                except KeyError:
+                    pass
             # Evaluate the individuals with an invalid fitness
-            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+            # invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+            invalid_ind = [ind for ind in offspring if (not ind.fitness.valid) and (not str(ind) in visited_inds)]
             fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
             for ind, fit in zip(invalid_ind, fitnesses):
                 ind.fitness.values = fit
+                visited_inds[str(ind)] = fit
 
             # Update the hall of fame with the generated individuals
             if halloffame is not None:
@@ -233,14 +242,19 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
 
             # Vary the pool of individuals
             offspring = algorithms.varAnd(offspring, toolbox, cxpb, mutpb)
-
+            for ind in offspring:
+                try:
+                    ind.fitness.values = visited_inds[str(ind)]
+                except KeyError:
+                    pass
             # Evaluate the individuals with an invalid fitness
-            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-            # invalid_ind = [ind for ind in population if not in visited_inds]
+            # invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+            invalid_ind = [ind for ind in offspring if (not ind.fitness.valid) and (not str(ind) in visited_inds)]
             fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
             for ind, fit in zip(invalid_ind, fitnesses):
                 ind.fitness.values = fit
-
+                visited_inds[str(ind)] = fit
+            
             # Update the hall of fame with the generated individuals
             if halloffame is not None:
                 halloffame.update(offspring)
@@ -332,7 +346,7 @@ def run():
     end_time = time.time()
 
     fitnesses = [str(p.fitness.values[0]) for p in pop]
-
+    logging.info("Logbook: \n{}".format(log))
     logging.info("\n Hall of Fame: \n")
     logging.info("End at: {}".format(time.strftime("%H:%M:%S", time.localtime())))
     for h in hof:
