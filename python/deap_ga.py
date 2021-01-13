@@ -305,6 +305,7 @@ def run():
     # logging.info("Parameters: {}".format(parameters))
     (num_iterations, num_population, seed, ga_parameters_file) = eval('{}'.format(parameters))
     distance_type_id = os.getenv('DISTANCE_TYPE_ID')
+    logging.info("Crossover probability: {}, Mutation probability: {}, Tournament size: {}".format(crossover_prob,mutation_prob,tournament_size))
     logging.info("No. of population: {}, Random seed: {}, GA parameters file: {}".format(pop_num, seed, ga_parameters_file))
     logging.info("Distance type - [{}]\t Termination criterion - [{}]\tCheckpoint file: {}\n".format(distance_type_id,termination_crit,checkpoint_file_input))
     logging.info("Begin at: {}".format(time.strftime("%H:%M:%S", time.localtime())))

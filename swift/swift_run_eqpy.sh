@@ -5,7 +5,7 @@ set -eu
 if [ "$#" -lt 7 ]; then
   script_name=$(basename $0)
   echo "Usage: ${script_name} EXPERIMENT_ID GA_PARAMS_FILE TERMINATION_CRIT POP_NUM CROSSOVER_PROB MUTATION_PROB TOURNAMENT_SIZE CHECKPOINT_FILE"
-  echo "(e.g. ${script_name} experiment_1 data/ga_params.json 30 0.75 0.5 3 path/to/ga_checkpoint.pkl)"
+  echo "(e.g. ${script_name} experiment_1 data/ga_params.json 30 50 0.75 0.5 3 path/to/ga_checkpoint.pkl)"
   echo "TERMINATION_CRIT: if integer is given, then max number of generations,"
   echo "                  else is lower limit of population fitness variance for 5 consecutive generations"
   echo "POP_NUM: integer, number of individuals in the population"
