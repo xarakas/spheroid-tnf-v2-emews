@@ -28,7 +28,7 @@ export PROCS=48
 # be ignored if the MACHINE variable (see below) is not set.
 export QUEUE=main
 export WALLTIME=47:59:00
-export PPN=3
+export PPN=12
 export TURBINE_JOBNAME="${EXPID}_job"
 
 # Extra argument passed to SLURM script
