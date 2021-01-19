@@ -110,9 +110,9 @@ app (void o) summarize_simulation (file summarize_py, string instance_dir) {
         python_persist(code, "'ignore'") =>
         (out,err) = run_model(model_sh, executable, xml_out, instance_dir) => {
           distances[replication] = get_result(instance_dir, replication);
-          summarize_simulation (summarize_py, instance_dir); 
-          // =>
-          // rm_dir(instance_dir);
+          summarize_simulation (summarize_py, instance_dir) => {
+           rm_dir(instance_dir);
+          }
         }
       }
     }
