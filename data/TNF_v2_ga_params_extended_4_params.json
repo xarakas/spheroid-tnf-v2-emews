@@ -23,8 +23,8 @@
     {
         "name" : "cell_definitions.cell_definition.phenotype.cycle.phase_transition_rates.rate",
         "type" : "float",
-        "lower" : 0.0015,
-        "upper" : 0.0075,
+        "lower" : 0.0001,
+        "upper" : 0.002,
         "sigma":  0.001
     }
 ]

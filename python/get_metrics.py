@@ -98,10 +98,10 @@ def get_simulation_dist(instance_dir, replication, emews_root):
             necrosis_cells = []
             for i in range(len(file_lines)):
                 items = file_lines[i].split("\t")
-                time_points.append(int(items[0]))
-                tumor_cells.append(int(items[1]))
-                death_cells.append(int(items[2]))
-                necrosis_cells.append(int(items[3]))
+                time_points.append(int(float(items[0])))
+                tumor_cells.append(int(float(items[1])))
+                death_cells.append(int(float(items[2])))
+                necrosis_cells.append(int(float(items[3])))
 
             # Find and parse corresponding original csv
             for i, f in enumerate(sorted(glob.glob(emews_root+'/data/original_physiboss_timeseries/*.csv'))):

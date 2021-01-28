@@ -41,18 +41,18 @@ export MUTATION_PROB=$7
 export TOURNAMENT_SIZE=$8
 
 # TODO edit the number of processes as required (must be more than 3).
-export PROCS=96
+export PROCS=120
 
 # TODO edit QUEUE, WALLTIME, PPN, AND TURNBINE_JOBNAME
 # as required. Note that QUEUE, WALLTIME, PPN, AND TURNBINE_JOBNAME will
 # be ignored if MACHINE flag (see below) is not set
 export QUEUE=main
-export WALLTIME=2:00:00
+export WALLTIME=72:00:00
 export PPN=12
 export TURBINE_JOBNAME="${EXPID}_job"
 
 # Extra argument passed to SLURM script
-export TURBINE_SBATCH_ARGS=--qos=debug
+# export TURBINE_SBATCH_ARGS=--qos=debug
 
 # if R cannot be found, then these will need to be
 # uncommented and set correctly.
@@ -91,7 +91,7 @@ SEED=1234
 ITERATIONS=10
 COMPARISONS=2 # Comparisons. Do NOT change this, unless number of files in the location "DEFAULT_XML_OUT/comparison/" changes.
 NUM_POPULATION=4
-NUM_REPETITIONS=2 # take the average of NUM_REPETITIONS similar runs (using the same GA individual)
+NUM_REPETITIONS=1 # take the average of NUM_REPETITIONS similar runs (using the same GA individual)
 
 CMD_LINE_ARGS="$* -seed=$SEED -ni=$ITERATIONS -nv=$COMPARISONS -np=$NUM_POPULATION -nr=$NUM_REPETITIONS -exe=$EXECUTABLE_OUT -settings=$CMP_XML_OUT -ga_parameters=$GA_PARAMS_FILE_OUT"
 

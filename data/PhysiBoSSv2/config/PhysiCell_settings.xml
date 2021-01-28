@@ -251,7 +251,7 @@
 		<time_remove_tnf type="int" units="min">100000</time_remove_tnf> <!-- 8000 -->
 		<membrane_length type="int" units=""> 470 </membrane_length>
 
-		<update_pc_parameters_O2_based type="bool" units="">true</update_pc_parameters_O2_based>
+		<update_pc_parameters_O2_based type="bool" units="">false</update_pc_parameters_O2_based>
 	</user_parameters>
 	
 	
