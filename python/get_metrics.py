@@ -1,4 +1,4 @@
-import os, sys, glob
+import os, sys, glob, json
 from scipy.spatial import distance
 import numpy as np
 import xml.dom.minidom
@@ -76,7 +76,7 @@ def get_simulation_dist(instance_dir, replication, emews_root):
     -1 if run terminated prematurely.
     """
     experiment_folder = os.getenv('TURBINE_OUTPUT')
-    with open(os.getenv('GA_CONFIG_FILE')) as f:
+    with open(os.path.join(experiment_folder,'..','..',os.getenv('GA_CONFIG_FILE'))) as f:
         ga_config = json.load(f)
     distance_type_id = ga_config['distance_type']
     logpath = os.path.join(instance_dir,'..','verbose_scores.log')

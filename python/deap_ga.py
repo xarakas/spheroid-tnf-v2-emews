@@ -20,7 +20,7 @@ import eqpy, ga_utils
 
 experiment_folder = os.getenv('TURBINE_OUTPUT')
 checkpoint_file_input = os.getenv('CHECKPOINT_FILE')
-with open(os.getenv('GA_CONFIG_FILE')) as f:
+with open(os.path.join(experiment_folder,'..','..',os.getenv('GA_CONFIG_FILE'))) as f:
     ga_config = json.load(f)
 termination_crit = ga_config['termination_crit']
 termination_args = ga_config['termination_args']
@@ -325,7 +325,7 @@ def run():
     distance_type_id = ga_config['distance_type']
     logging.info("Crossover probability: {}, Mutation probability: {}, Tournament size: {}".format(crossover_prob,mutation_prob,tournament_size))
     logging.info("No. of population: {}, Random seed: {}, GA parameters file: {}".format(pop_num, seed, ga_parameters_file))
-    logging.info("Distance type - [{}]\t Termination criterion - [{}]\tCheckpoint file: {}\n".format(distance_type_id,termination_crit,checkpoint_file_input))
+    logging.info("Distance type - [{}]\t Termination criterion - [{}] - args [{}]\tCheckpoint file: {}\n".format(distance_type_id,termination_crit,termination_args,checkpoint_file_input))
     logging.info("Begin at: {}".format(time.strftime("%H:%M:%S", time.localtime())))
     # num_iterations not used
     random.seed(seed)
