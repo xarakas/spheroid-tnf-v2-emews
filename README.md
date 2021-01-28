@@ -65,11 +65,36 @@ Compile [PhysiBoSSv2]:
 
 `$ cd ../..`
 
+##### GA_CONFIG file (in JSON format)
+
+{
+
+    "distance_type" : "l1",         // Can either be 'euclidean', 'dtw', or 'l1'
+    "termination_crit" : "fitmin",  // Can either be 'genmax', 'fitmin', 'fitavg', or 'fitvar'
+    "termination_args" : 2.55,      // Either integer or float, according to the "termination_crit" value (cf. below)
+    "pop_num" : 40,                 // Population number
+    "crossover_prob": 0.75,         // Crossover probability
+    "mutation_prob": 0.5,           // Mutation probability
+    "tournament_size": 3            // Tournament selection - tournament size
+    
+}
+
+``termination_crit``: 
+
+genmax: Stop when a number of generations is met (the provided integer in the ``termination_args`` field).
+
+fitmin: Stop when an individual with lower fitness than the ``termination_args`` value is discovered.
+
+fitavg: Stop when the average fitness score of the population drops below ``termination_args`` value.
+
+fitvar: Stop when the variance of the fitness scores of the population is below ``termination_args`` value for five consecutive generations.
+
+
 ##### Run a calibration experiment 
 The params file must be described in .json format, see examples in `data/`:
 
-`$ bash swift/swift_run_eqpy_compare.sh <EXPERIMENT_ID> <GA_PARAMS_FILE> <DISTANCE_TYPE> <TERMINATION_CRIT> <POP_NUM> <CROSSOVER_PROB> <MUTATION_PROB> <TOURNAMENT_SIZE> <CHECKPOINT_FILE>`
-(e.g. ${script_name} experiment_1 data/ga_params.json euclidean 30 50 0.75 0.5 3 last_experiment.pkl)
+`$ bash swift/swift_run_eqpy_compare.sh <EXPERIMENT_ID> <GA_PARAMS_FILE> <GA_CONFIG> <CHECKPOINT_FILE>`
+(e.g. bash swift/swift_run_eqpy_compare.sh experiment_1 data/ga_params.json data/ga_config.json last_experiment.pkl)
 
 <CHECKPOINT_FILE> is optional, and contains the GA state from a previous run (stored automatically inside the experiment folder `experiments/`.
 Logs regarding time, individuals examined and their fitness scores can be found in `experiments/<EXPERIMENT_ID>/generations.log`.
@@ -78,18 +103,18 @@ Logs regarding time, individuals examined and their fitness scores can be found 
 Again, a params file should be given, see e.g. `data/inputs.txt`:
 
 `$ bash swift/swift_run_sweep.sh <EXPERIMENT_ID> <SWEEP_INPUT>` 
-(e.g. ${script_name} experiment_1 data/input.txt)
+(e.g. bash swift/swift_run_sweep.sh experiment_1 data/input.txt)
 
 ##### Discover effective drug treatments
-`$ bash swift/swift_run_eqpy.sh <EXPERIMENT_ID> <GA_PARAMS_FILE> <TERMINATION_CRIT> <POP_NUM> <CROSSOVER_PROB> <MUTATION_PROB> <TOURNAMENT_SIZE> <CHECKPOINT_FILE>`
-(e.g. ${script_name} experiment_1 data/ga_params.json 30 50 0.75 0.5 3 last_experiment.pkl)
+`$ bash swift/swift_run_eqpy.sh <EXPERIMENT_ID> <GA_PARAMS_FILE> <GA_CONFIG> <CHECKPOINT_FILE>`
+(e.g. bash swift/swift_run_eqpy.sh experiment_1 data/ga_params.json data/ga_config.json last_experiment.pkl)
 
 <CHECKPOINT_FILE> is optional, and contains the GA state from a previous run (stored automatically inside the experiment folder `experiments/`.
 Logs regarding time, individuals examined and their fitness scores can be found in `experiments/<EXPERIMENT_ID>/generations.log`.
 
 ##### Active learning scenario
 `$ bash swift/swift_run_eqpy_rand.sh <EXPERIMENT_ID> <RF_PARAMS_FILE>`
-(e.g. ${script_name} experiment_1 data/input.txt)
+(e.g. bash swift/swift_run_eqpy_rand.sh experiment_1 data/input.txt)
 
 ### Important note:
 .sh files in the `swift/` folder  set various environment parameters for the execution.
@@ -102,37 +127,5 @@ versions will NOT work.
 
 ### Further reading:
 For more information regarding installation and execution, please see the file how-to-launch.txt
-
-### Structure:
-The project consists of the following directories:
-
-```
-EMEWS-PhysiBoSSv2/
-  data/
-  ext/
-  etc/
-  python/
-    test/
-  R/
-    test/
-  scripts/
-  swift/
-  README.md
-```
-The directories are intended to contain the following:
-
- * `data` - model input etc. data
- * `etc` - additional code used by EMEWS
- * `ext` - swift-t extensions such as eqpy, eqr
- * `python` - python code (e.g. model exploration algorithms written in python)
- * `python/test` - tests of the python code
- * `R` - R code (e.g. model exploration algorithms written R)
- * `R/test` - tests of the R code
- * `scripts` - any necessary scripts (e.g. scripts to launch a model), excluding
-    scripts used to run the workflow.
- * `swift` - swift code
-
-Use the subtemplates to customize this structure for particular types of
-workflows. These are: sweep, eqpy, and eqr.
 
 
