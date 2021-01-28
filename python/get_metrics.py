@@ -76,7 +76,9 @@ def get_simulation_dist(instance_dir, replication, emews_root):
     -1 if run terminated prematurely.
     """
     experiment_folder = os.getenv('TURBINE_OUTPUT')
-    distance_type_id = os.getenv('DISTANCE_TYPE_ID')
+    with open(os.getenv('GA_CONFIG_FILE')) as f:
+        ga_config = json.load(f)
+    distance_type_id = ga_config['distance_type']
     logpath = os.path.join(instance_dir,'..','verbose_scores.log')
     logging.basicConfig(format='%(message)s',filename=logpath,level=logging.DEBUG)
     output = '-2'

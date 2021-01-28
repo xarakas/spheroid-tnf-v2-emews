@@ -20,11 +20,14 @@ import eqpy, ga_utils
 
 experiment_folder = os.getenv('TURBINE_OUTPUT')
 checkpoint_file_input = os.getenv('CHECKPOINT_FILE')
-termination_crit = os.getenv('TERMINATION_CRIT')
-crossover_prob = float(os.getenv('CROSSOVER_PROB'))
-mutation_prob = float(os.getenv('MUTATION_PROB'))
-tournament_size = int(os.getenv('TOURNAMENT_SIZE'))
-pop_num = int(os.getenv('POP_NUM'))
+with open(os.getenv('GA_CONFIG_FILE')) as f:
+    ga_config = json.load(f)
+termination_crit = ga_config['termination_crit']
+termination_args = ga_config['termination_args']
+crossover_prob = float(ga_config['crossover_prob'])
+mutation_prob = float(ga_config['mutation_prob'])
+tournament_size = int(ga_config['tournament_size'])
+pop_num = int(ga_config['pop_num'])
 checkpoint_file = os.path.join(experiment_folder,"ga_checkpoint.pkl")
 logging.basicConfig(format='%(message)s',filename=os.path.join(experiment_folder,"generations.log"),level=logging.DEBUG)
 # list of ga_utils parameter objects
@@ -144,7 +147,7 @@ def cxUniform(ind1, ind2, indpb):
 def timestamp(scores):
     return str(time.time())
 
-def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
+def eaSimpleExtended(population, toolbox, cxpb, mutpb, term, ngen, stats=None,
              halloffame=None, verbose=__debug__, checkpoint=None):
     visited_inds = {}
     # If previous sim has failed, or we want to continue from previous generation
@@ -171,8 +174,8 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
 
     if halloffame is not None:
         halloffame.update(population)
-    gen_variance = []
-    variance_log = []
+    # gen_variance = []
+    # variance_log = []
     record = stats.compile(population) if stats else {}
     logbook.record(gen=0, nevals=len(invalid_ind), **record)
     if verbose:
@@ -186,7 +189,7 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
     # logging.debug("Stats: {}".format(stats))
     # logging.debug("Record: {}, length: {}".format(record, len(record)))
     logging.debug("Term crit type: {}".format(type(ngen)))
-    if type(ngen)==int: # Run for ngens
+    if term=='genmax': # Run for ngens
         logging.debug("Following normal termination criterion process.")
         # Begin the generational process
         for gen in range(1, ngen + 1):
@@ -281,10 +284,25 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, ngen, stats=None,
             #     gen_variance.append(p.fitness.values)
             # variance_log.append(np.var(gen_variance))
             # if abs(variance_log[-1]-variance_log[-2]) <= ngens:
-            if math.pow(float(logbook.select("std")[-1]),2) <= ngen:
-                counter = counter + 1
+            if term=="fitmin":
+                if float(logbook.select("min")[-1]) <= ngen:
+                    counter = 5
+                else:
+                    counter = 0
+            elif term=="fitvar":
+                if math.pow(float(logbook.select("std")[-1]),2) <= ngen:
+                    counter = counter + 1
+                else:
+                    counter = 0
+            elif term=="fitavg":
+                if float(logbook.select("avg")[-1]) <= ngen:
+                    counter = 5
+                else:
+                    counter = 0
             else:
-                counter = 0
+                logging.info("Unknown GA configuration value: '{}'... Exiting".format(term))
+                counter = 5
+
             logging.debug("Generation fitness variance = {}, counter is now: {}".format(math.pow(float(logbook.select("std")[-1]),2), counter))
             gen = gen + 1
 
@@ -304,7 +322,7 @@ def run():
     # printf("Parameters: {}".format(parameters))
     # logging.info("Parameters: {}".format(parameters))
     (num_iterations, num_population, seed, ga_parameters_file) = eval('{}'.format(parameters))
-    distance_type_id = os.getenv('DISTANCE_TYPE_ID')
+    distance_type_id = ga_config['distance_type']
     logging.info("Crossover probability: {}, Mutation probability: {}, Tournament size: {}".format(crossover_prob,mutation_prob,tournament_size))
     logging.info("No. of population: {}, Random seed: {}, GA parameters file: {}".format(pop_num, seed, ga_parameters_file))
     logging.info("Distance type - [{}]\t Termination criterion - [{}]\tCheckpoint file: {}\n".format(distance_type_id,termination_crit,checkpoint_file_input))
@@ -342,7 +360,7 @@ def run():
     stats.register("ts", timestamp)
 
     start_time = time.time()
-    pop, log = eaSimpleExtended(pop, toolbox, cxpb=crossover_prob, mutpb=mutation_prob, ngen=num(termination_crit), stats=stats, halloffame=hof, verbose=True, checkpoint=checkpoint_file_input)
+    pop, log = eaSimpleExtended(pop, toolbox, cxpb=crossover_prob, mutpb=mutation_prob, term=termination_crit, ngen=num(termination_args), stats=stats, halloffame=hof, verbose=True, checkpoint=checkpoint_file_input)
 
     end_time = time.time()
 
