@@ -42,6 +42,8 @@
 # Temporary files
 *.swp
 
+# Pycache
+python/__pycache__
 
 # Experiments folder
 experiments
