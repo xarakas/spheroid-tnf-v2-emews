@@ -77,7 +77,7 @@ app (void o) summarize_simulation (file summarize_py, string instance_dir) {
 
 (string result) run_obj(string custom_parameters, int ga_iteration, int parameter_iteration, int num_replications, string executable, string default_xml)
 {
-    file summarize_py = input(emews_root + "/scripts/summarize_simulation.py");
+    file summarize_py = input(emews_root + "/scripts/summarize_simulation_DD.py");
     string cell_counts[];
     foreach replication in [0:num_replications-1:1] {
       // make instance dir
