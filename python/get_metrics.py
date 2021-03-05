@@ -85,6 +85,7 @@ def get_simulation_dist(instance_dir, replication, emews_root):
     output2 = '-2'
     output3 = '-3'
     fname = '{}/metrics.txt'.format(instance_dir)
+    #logging.info("fname: {}".format(fname))
     if os.path.exists(fname):
         file_lines = []
         with open(fname) as f_in:
@@ -115,11 +116,18 @@ def get_simulation_dist(instance_dir, replication, emews_root):
                     alive = []
                     apoptotic = []
                     necrotic = []
-                    for i in time_points:
-                        data = lines[int(i)+1].split('\t')
-                        alive.append(float(data[2]))
-                        apoptotic.append(float(data[3]))
-                        necrotic.append(float(data[4]))
+                    if len(lines)>50:
+                        for i in time_points:
+                            data = lines[int(i)+1].split('\t')
+                            alive.append(float(data[2]))
+                            apoptotic.append(float(data[3]))
+                            necrotic.append(float(data[4]))
+                    else:
+                        for i in range(1,len(lines)):
+                            data = lines[int(i)].split('\t')
+                            alive.append(float(data[2]))
+                            apoptotic.append(float(data[3]))
+                            necrotic.append(float(data[4]))
                     norm_val = max(alive)
                     alive[:] = [x / norm_val for x in alive]
                     apoptotic[:] = [x / norm_val for x in apoptotic]

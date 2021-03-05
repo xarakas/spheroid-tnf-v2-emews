@@ -1,0 +1,26 @@
+{  
+    "cell_definitions.cell_definition.custom_data.TNFR_binding_rate": {
+        "min":0.01, 
+        "max":1.0, 
+        "loc":0.2, 
+        "scale":0.01 
+    },
+    "cell_definitions.cell_definition.custom_data.TNFR_endocytosis_rate": { 
+        "min":0.01,
+        "max":1.0,
+        "loc":0.09625,
+        "scale":0.01 
+    },
+    "cell_definitions.cell_definition.custom_data.TNFR_recycling_rate": {
+        "min":0.01,
+        "max":1,
+        "loc":0.5,
+        "scale":0.01 
+    },
+    "cell_definitions.cell_definition.phenotype.cycle.phase_transition_rates.rate": {
+        "min" : 0.0001,
+        "max" : 0.002,
+        "loc":0.5,
+        "scale":0.01 
+    }
+}
