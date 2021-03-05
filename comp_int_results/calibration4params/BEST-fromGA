@@ -1,0 +1,27 @@
+Euclidean:
+0.21866894752674115,0.16977209029553517,0.5378626847397122,0.0008470522416655173,2.8914114021444943
+
+L1:
+0.22125521285197308,0.16926048298940768,0.54066305592146,0.0009730234222480393,16.28716001740215
+
+DTW:
+0.33986731656453956,0.1735016705481431,0.3432203095659807,0.0010617604334821709,9.859165925343559
+
+
+
+
+SWEEP:
+L1
+        id    k1    k2    k3        k4      Eucl  Eucl_alive  Eucl_apoptotic  ...       DTW  DTW_alive  DTW_apoptotic  DTW_necrotic        l1  l1_alive  l1_apoptotic  l1_necrotic
+8354  8355  0.89  0.34  0.56  0.000944  2.537608    1.572797        0.649188  ...  8.049264   4.743448       2.053858      1.251958  14.40187  8.849148      3.728111     1.824611
+
+[1 rows x 17 columns]
+DTW
+        id    k1    k2   k3        k4      Eucl  Eucl_alive  Eucl_apoptotic  ...      DTW  DTW_alive  DTW_apoptotic  DTW_necrotic         l1  l1_alive  l1_apoptotic  l1_necrotic
+8494  8495  0.89  0.45  1.0  0.000944  2.655294    1.722132        0.626306  ...  7.80034   5.068114       1.822052      0.910174  14.745067  9.554988      3.517246     1.672834
+
+[1 rows x 17 columns]
+Euclidean
+        id    k1    k2    k3        k4      Eucl  Eucl_alive  Eucl_apoptotic  ...       DTW  DTW_alive  DTW_apoptotic  DTW_necrotic        l1  l1_alive  l1_apoptotic  l1_necrotic
+8354  8355  0.89  0.34  0.56  0.000944  2.537608    1.572797        0.649188  ...  8.049264   4.743448       2.053858      1.251958  14.40187  8.849148      3.728111     1.824611
+
