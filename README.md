@@ -1,6 +1,6 @@
 forked from [migp11/PhysiBoSSv2-EMEWS](https://github.com/migp11/PhysiBoSSv2-EMEWS)
 
-***For results, please checkout to the comp_int_j branch***
+***For results, please checkout to the 'coin_paper_results' branch***
 
 Overview
 -----------------------
