@@ -1,5 +1,7 @@
 forked from [migp11/PhysiBoSSv2-EMEWS](https://github.com/migp11/PhysiBoSSv2-EMEWS)
 
+***For results, please checkout to the comp_int_j branch***
+
 Overview
 -----------------------
 This repository combines various libaries and components to deliver a parallelized simulator for tumor cell growth that can be used for exploring parameter values of interest, for example related to cell growth, or to the effectiveness of drug treatments.
