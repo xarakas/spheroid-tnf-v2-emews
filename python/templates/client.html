@@ -1,0 +1,412 @@
+<!doctype html>
+<html>
+<head>
+  <title>INFORE UC1</title>
+  <!-- CSS only -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+<!-- JavaScript Bundle with Popper -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    .faded {
+      opacity: 0;
+      transition: opacity 1s;
+    }
+  </style>
+  <script type="text/javascript">
+    window.onbeforeunload = function(e) {
+      return "Do you really want to exit?";
+    };
+
+    var ws;
+    var reqstr1 = "http://localhost:5004/api/v1/listscripts";
+    var reqstr2 = "http://localhost:5004/api/v1/listinput";
+    var reqstr3 = "http://localhost:5004/api/v1/listconfig";
+    var reqstr4 = "http://localhost:5004/api/v1/run";
+    var reqstr5 = "http://localhost:5004/api/v1/interimstates";
+    var reqstr6 = "http://localhost:5004/api/v1/galogs";
+    var resp;
+
+
+    function init() {
+      var ul = document.getElementById("ct");
+      fetch(reqstr1)
+      .then(res => {return res.json()})
+      .then(data => {/*output("Request complete! response:" + data); */resp=data;
+        resp.forEach(function (item) {
+          var el = document.createElement("option");
+          var b = item.split('/');
+          el.textContent = b[2];
+          el.value = b[2];
+          ul.appendChild(el);
+        });
+      }).catch(error => {showAlert(error,"alert-danger")});
+
+      var ul2 = document.getElementById("ct2");
+      fetch(reqstr2)
+      .then(res => {return res.json()})
+      .then(data => {/*output("Request complete! response:" + data); */resp=data;
+        resp.forEach(function (item) {
+          var el = document.createElement("option");
+          var b = item.split('/');
+          el.textContent = b[2];
+          el.value = b[2];
+          ul2.appendChild(el);
+        });
+      }).catch(error => {showAlert(error,"alert-danger")});
+
+      var ul3 = document.getElementById("ct3");
+      fetch(reqstr3)
+      .then(res => {return res.json()})
+      .then(data => {/*output("Request complete! response:" + data); */resp=data;
+        resp.forEach(function (item) {
+          var el = document.createElement("option");
+          var b = item.split('/');
+          el.textContent = b[2];
+          el.value = b[2];
+          ul3.appendChild(el);
+        });
+      }).catch(error => {showAlert(error,"alert-danger")});
+
+      var ul4 = document.getElementById("ct4");
+      fetch(reqstr5)
+      .then(res => {return res.json()})
+      .then(data => {/*output("Request complete! response:" + data); */resp=data;
+        resp.forEach(function (item) {
+          var el = document.createElement("option");
+          // var b = item.split('/');
+          el.textContent = item;
+          el.value = item;
+          ul4.appendChild(el);
+        });
+      }).catch(error => {showAlert(error,"alert-danger")});
+
+      var ul5 = document.getElementById("ct5");
+      fetch(reqstr6)
+      .then(res => {return res.json()})
+      .then(data => {/*output("Request complete! response:" + data); */resp=data;
+        resp.forEach(function (item) {
+          var el = document.createElement("option");
+          // var b = item.split('/');
+          el.textContent = item;
+          el.value = item;
+          ul5.appendChild(el);
+        });
+      }).catch(error => {showAlert(error,"alert-danger")});
+      showAlert("Connected and Loaded!","alert-success");
+
+      showAlert("Connected and Loaded!","alert-success");
+    }
+
+
+    function onSubmit() {
+      var scriptname = document.getElementById("ct");
+      var inputfile = document.getElementById("ct2");
+      var conffile = document.getElementById("ct3");
+      var expname = document.getElementById("expname");
+      var interimres = document.getElementById("ct4");
+      data = {scriptname:scriptname.value, expname:expname.value, inputfile:inputfile.value, conffile:conffile.value, interimresults:interimres.options[interimres.selectedIndex].value};
+      fetch(reqstr4, {
+        method: "POST", 
+        body: JSON.stringify(data)})
+        .then(res => {return res.json()})
+        .then(resd => {
+          showAlert(resd, "alert-success");
+        }).catch(error => {showAlert(error,"alert-danger")});
+    }
+
+
+    function onUpload() {
+      var reqstr5 = "http://localhost:5004/api/v1/upload"
+      let file = document.getElementById("myFile").files[0];
+      let formData = new FormData();
+      var ul = document.getElementById("ct");
+
+      formData.append("file", file);
+      fetch(reqstr5, {method: "POST", body: formData})
+      .then(res1 => {return res1.json()})
+      .then(data1 => {showAlert(data1,"alert-info"); fetch(reqstr1)
+              .then(res => {return res.json()})
+              .then(data => {/*output("Request complete! response:" + data); */resp=data;
+                ul.innerHTML = "";
+                resp.forEach(function (item) {
+                var el = document.createElement("option");
+                var b = item.split('/');
+                el.textContent = b[2];
+                el.value = b[2];
+                ul.appendChild(el);
+              });
+              }).catch(error => {showAlert(error,"alert-danger")})})
+      .catch(error => {showAlert(error,"alert-danger")});
+    }
+    
+    function runTerm() {
+      var reqstr5 = "http://localhost:5004/api/v1/termrun"
+      let cmd = document.getElementById("cmd").value;
+      fetch(reqstr5, {method: "POST", body: cmd})
+      .then(res1 => {return res1.text()})
+      .then(data1 => {showAlert(data1,"alert-info");
+        output(data1);
+      })
+      .catch(error => {showAlert(error,"alert-danger")});
+    }
+    
+    function updateScriptDesc(){
+      var temp = document.getElementById("ct");
+      var temp1 = document.getElementById("scriptdesc");
+      switch (temp.value){
+        case "swift_run_eqpy.sh":
+          temp1.innerHTML = "Run GA workflow for drug policy optimization.";
+          var x = document.getElementById("ct3d");
+          x.style.display = "block";
+          break;
+        case "swift_run_eqpy_compare.sh":
+          temp1.innerHTML = "Run GA for simulator calibration.";
+          var x = document.getElementById("ct3d");
+          x.style.display = "block";
+          break;
+        case "swift_run_sweep.sh":
+          temp1.innerHTML = "Run sweep search.";
+          var x = document.getElementById("ct3d");
+          var y = document.getElementById("ct3").options;
+          for(var i = 0; i < y.length; i++){
+            y[i].selected = false;
+          }
+          x.style.display = "none";
+          break;
+        case "swift_run_eqpy_rand.sh":
+          temp1.innerHTML = "Run Active Learning workflow for parameter space characterization.";
+          var x = document.getElementById("ct3d");
+          x.style.display = "none";
+          break;
+        case "swift_run_eqpy_rand_compare.sh":
+          temp1.innerHTML = "(Not verified yet!) Run Active Learning workflow for simulator calibration.";
+          var x = document.getElementById("ct3d");
+          x.style.display = "none";
+          break;
+        default:
+          temp1.innerHTML = "Select an experiment type!";
+          break;
+      }
+    }
+
+    // TODO
+    function updateLogs(){
+      var expname = document.getElementById("ct5");
+      if (expname.value!=""){
+        var reqstr6 = "http://localhost:5004/api/v1/getlogs/"+expname.value.split('/')[2];
+        fetch(reqstr6)
+        .then(res1 => {return res1.json()})
+        .then(data1 => {
+          // showAlert(data1,"alert-info");
+          toplot=data1.split('\", \"');
+          d = [];
+          var arrayLength = toplot.length;
+          for (var i = 0; i < arrayLength; i++) {
+              d[i] = parseFloat(toplot[i]);
+          }  
+          var canvas = document.createElement('canvas');
+          var cont = document.getElementById('graph-container');
+          var old = document.getElementById('myChart');
+          old.remove();
+          canvas.id = "myChart";
+          cont.appendChild(canvas);
+          var ctx = document.getElementById('myChart').getContext('2d');
+          var chart = new Chart(ctx, {
+              // The type of chart we want to create
+              type: 'bar',
+
+              // The data for our dataset
+              data: {
+                  labels: [...Array(d.length).keys()],
+                  datasets: [{
+                      label: 'Score', //TODO fix label with distance type
+                      backgroundColor: 'rgb(0, 0, 0)',
+                      borderColor: 'rgb(0, 0, 0)',
+                      data: d
+                  }]
+              },
+              // Configuration options go here
+              options: {
+                responsive: true,
+                scales: {
+                  xAxes: [{
+                      scaleLabel: {
+                        display: true,
+                        labelString: 'Generation'
+                      }
+                  }],
+                  yAxes: [{
+                      scaleLabel: {
+                        display: true,
+                        labelString: 'Score'
+                      }
+                  }]
+                }
+              }
+          });
+        })
+        .catch(error => {showAlert(error,"alert-danger")});
+      }
+    }
+
+    function showAlert(message, alertType){
+      var temp = document.getElementById("notification");
+      temp.innerHTML = message;
+      temp.classList.add("alert");
+      temp.classList.add(alertType);
+      temp.classList.add("fade");
+      temp.classList.add("show");
+      setTimeout(function () {
+        hideAlert();
+      }, 3000);
+    }
+
+    function hideAlert(){
+      var temp = document.getElementById("notification");
+      temp.className = 'alert fade';
+    }
+
+    function AddZero(num) {
+      return (num >= 0 && num < 10) ? "0" + num : num + "";
+    }
+
+    function datetimenow(){
+      var now = new Date();
+      var strDateTime = [[AddZero(now.getDate()), 
+        AddZero(now.getMonth() + 1), 
+        now.getFullYear()].join("/"), 
+        [AddZero(now.getHours()), 
+        AddZero(now.getMinutes())].join(":"), 
+        now.getHours() >= 12 ? "PM" : "AM"].join(" ");
+    return strDateTime;
+    }
+
+    function output(str) {
+      var log = document.getElementById("log");
+      var escaped = str.replace(/&/, "&amp;").replace(/</, "&lt;").
+        replace(/>/, "&gt;").replace(/"/, "&quot;").replace('\n','<br/>'); 
+      log.innerHTML = "<small class=\"text-muted\">[" + datetimenow() + "]:</small> " + document.getElementById("cmd").value + '\n' + escaped + log.innerHTML + '\n<br/>';
+    }
+  </script>
+</head>
+<body onload="init();">
+  <div class="container-fluid">
+  <h1>Bio Use-case: Interactive learning with GA - v0.1</h1>
+  
+  <div id="notification" class="alert fade" role="alert" style="position:fixed;top:0;right:0;width:50%;">
+  </div>
+  
+  <ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">Main</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="graphs-tab" data-bs-toggle="tab" data-bs-target="#graphs" type="button" role="tab" aria-controls="graphs" aria-selected="false">Graphs</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Terminal</button>
+  </li>
+</ul>
+
+
+<div class="tab-content" id="myTabContent">
+  <!--
+      First Tab "MAIN"
+  -->
+  <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+    <div class="row">
+      <div class="col-6">
+        <h3>Experiment type</h3>
+        <select id="ct" size="6" onchange="updateScriptDesc()">
+        </select>
+        <div>
+          <form onsubmit="onUpload(); return false;">
+            <input type="file" id="myFile" name="filename">
+            <input type="submit" value="Upload">
+          </form>
+        </div>
+      </div>
+      <div class="col-6">
+        Description:
+        <div id="scriptdesc">
+        </div>
+      </div>
+    </div>
+    
+    <hr>
+    
+    <div class="row">
+      <div class="col-6">
+        <h3>Give your experiment a name</h3>
+        <input type="text" id="expname" placeholder="Experiment Name">
+      </div>
+    </div>
+    
+    <hr>
+    
+    <div id="ct2d">
+      Choose an input file:
+      <select id="ct2" size="3">
+      </select>
+    </div>
+
+    <hr>
+    
+    <div id="ct3d">
+      Choose a configuration:
+      <select id="ct3" size="3">
+      </select>
+    </div>
+
+    <hr>
+
+    Choose an interim state:
+    <select id="ct4">
+        <option></option>
+    </select>
+
+    <form onsubmit="onSubmit(); return false;">
+      <input type="submit" value="Submit">
+    </form>
+  </div>
+
+  <!--
+      Second Tab "GRAPHS"
+  -->
+  <div class="tab-pane fade" id="graphs" role="tabpanel" aria-labelledby="graphs-tab">
+    Select an experiment:
+    <select id="ct5" onchange="updateLogs()">
+        <option></option>
+    </select>
+    <div class="container-fluid" id="graph-container" style="width:50%;">
+        <canvas id="myChart"></canvas>
+    </div>
+
+  </div>
+
+  <!--
+      Third Tab "TERMINAL"
+  -->
+  <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
+  <!--<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>-->
+    <div>
+      <br/>
+      <br/>
+      <form onsubmit="runTerm(); return false;">
+        <input type="text" id="cmd" name="cmd">
+        <input type="submit" value="Run terminal commands">
+      </form>
+      <hr>
+      <div id="log" style="white-space: pre-wrap;width:100%;">
+      </div>
+    </div>
+  </div>
+
+  </div>
+</div>
+</body>
+</html>
