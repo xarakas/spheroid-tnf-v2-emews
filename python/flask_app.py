@@ -82,6 +82,10 @@ if __name__ == '__main__':
     def listlogbyid(id):
         return jsonify(parsing.getgatimecourse(id))
 
+    @app.route('/api/v1/getgalogbook/<id>', methods=['GET'])
+    def listlogbookbyid(id):
+        return jsonify(parsing.getgalogbook(id))
+
     @app.route('/api/v1/upload', methods=['GET','POST'])
     def upload_file():
         # check if the post request has the file part
@@ -123,7 +127,7 @@ if __name__ == '__main__':
             #     return "sudo command prohibited"
             for cm in cmd:
                 if cm=="sudo" or cm=="rm" or cm=="mkfs.ext4" or cm=="shred" or cm=="dd" or cm=="mv" or cm==":():&":
-                    return "Command prohibited \"{}\"\n".format(request.data.decode("utf-8"))
+                    return "Unsupported command: \"{}\"\n".format(request.data.decode("utf-8"))
             try: 
                 p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 return p.stdout

@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
   <title>INFORE UC1</title>
@@ -7,15 +7,21 @@
 <!-- JavaScript Bundle with Popper -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.6.2/d3.min.js" integrity="sha512-L2eTGYYQqzK5YozYyUVrJKj2ZRnHE3QzV1+1yY6VXHExStF3potRZyEcD/B6sTOe04xYxB21QNLmVTQFcgwovg==" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-chart-box-and-violin-plot/2.4.0/Chart.BoxPlot.min.js" integrity="sha512-wThQu2PZG8h1zgYe9HNYAblGSRzSeZ7g584vrTiizIZJHw7gG1LCDZsLy/YHVnw3lp7pXXNJNa4ilECz1DiqPA==" crossorigin="anonymous"></script>
+<!-- <script src='https://cdn.plot.ly/plotly-latest.min.js'></script> 
+<script src="https://d3js.org/d3.v4.js"></script>-->
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
+<meta charset="utf-8">
   <style>
     .faded {
       opacity: 0;
       transition: opacity 1s;
     }
   </style>
+
+
   <script type="text/javascript">
     window.onbeforeunload = function(e) {
       return "Do you really want to exit?";
@@ -206,7 +212,7 @@
           d = [];
           var arrayLength = toplot.length;
           for (var i = 0; i < arrayLength; i++) {
-              d[i] = parseFloat(toplot[i]);
+              d[i] = parseFloat(toplot[i].replace("[\"",""));
           }  
           var canvas = document.createElement('canvas');
           var cont = document.getElementById('graph-container');
@@ -223,7 +229,7 @@
               data: {
                   labels: [...Array(d.length).keys()],
                   datasets: [{
-                      label: 'Score', //TODO fix label with distance type
+                      label: 'Best Score', //TODO fix label with distance type
                       backgroundColor: 'rgb(0, 0, 0)',
                       borderColor: 'rgb(0, 0, 0)',
                       data: d
@@ -250,8 +256,74 @@
           });
         })
         .catch(error => {showAlert(error,"alert-danger")});
+
+      var reqstr6 = "http://localhost:5004/api/v1/getgalogbook/"+expname.value.split('/')[2];
+        fetch(reqstr6)
+        .then(res1 => {return res1.json()})
+        .then(data1 => {
+          // showAlert(data1,"alert-info");
+          d = [];
+          toplot=data1.split('], [');
+          var arrayLength = toplot.length;
+          for (var i = 0; i < arrayLength; i++) {
+              toplot[i] = toplot[i].replace("[","").replace("]","");
+              toplot[i] = toplot[i].replace("\"","");
+              // console.log(toplot[i]);
+              d[i] = toplot[i].replace("[","").replace("]","").split("\", \"").map(Number);//parseFloat(toplot[i].split(", "));
+          }  
+          var canvas = document.createElement('canvas');
+          var cont = document.getElementById('graph-container2');
+          var old = document.getElementById('myChart2');
+          old.remove();
+          canvas.id = "myChart2";
+          cont.appendChild(canvas);
+          var ctx = document.getElementById('myChart2').getContext('2d');
+          var chart = new Chart(ctx, {
+              // The type of chart we want to create
+              type: 'boxplot',
+
+              // The data for our dataset
+              data: {
+                  labels: [...Array(d.length).keys()],
+                  datasets: [{
+                      label: 'Scores', //TODO fix label with distance type
+                      backgroundColor: 'rgba(255,0,0,0.5)',
+                      borderColor: 'rgb(0, 0, 0)',
+                      data: d
+                  }]
+              },
+              // Configuration options go here
+              options: {
+                responsive: true,
+                scales: {
+                  xAxes: [{
+                      scaleLabel: {
+                        display: true,
+                        labelString: 'Generation'
+                      }
+                  }],
+                  yAxes: [{
+                      scaleLabel: {
+                        display: true,
+                        labelString: 'Score'
+                      }
+                  }]
+                }
+              }
+          });
+        })
+        .catch(error => {showAlert(error,"alert-danger")});
+
+
       }
     }
+
+
+
+    // function randomValues(count, min, max) {
+    //   const delta = max - min;
+    //   return Array.from({length: count}).map(() => Math.random() * delta + min);
+    // }
 
     function showAlert(message, alertType){
       var temp = document.getElementById("notification");
@@ -384,6 +456,9 @@
     </select>
     <div class="container-fluid" id="graph-container" style="width:50%;">
         <canvas id="myChart"></canvas>
+    </div>
+    <div class="container-fluid" id="graph-container2" style="width:50%;">
+        <canvas id="myChart2"></canvas>
     </div>
 
   </div>
