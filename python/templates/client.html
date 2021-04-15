@@ -5,11 +5,20 @@
   <!-- CSS only -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
 <!-- JavaScript Bundle with Popper -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+
+<link href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css" rel="stylesheet">
+<script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.6.2/d3.min.js" integrity="sha512-L2eTGYYQqzK5YozYyUVrJKj2ZRnHE3QzV1+1yY6VXHExStF3potRZyEcD/B6sTOe04xYxB21QNLmVTQFcgwovg==" crossorigin="anonymous"></script>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/6.6.2/d3.min.js" integrity="sha512-L2eTGYYQqzK5YozYyUVrJKj2ZRnHE3QzV1+1yY6VXHExStF3potRZyEcD/B6sTOe04xYxB21QNLmVTQFcgwovg==" crossorigin="anonymous"></script> -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-chart-box-and-violin-plot/2.4.0/Chart.BoxPlot.min.js" integrity="sha512-wThQu2PZG8h1zgYe9HNYAblGSRzSeZ7g584vrTiizIZJHw7gG1LCDZsLy/YHVnw3lp7pXXNJNa4ilECz1DiqPA==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js" integrity="sha512-UXumZrZNiOwnTcZSHLOfcTs0aos2MzBWHXOHOuB0J/R44QB0dwY5JgfbvljXcklVf65Gc4El6RjZ+lnwd2az2g==" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/0.7.7/chartjs-plugin-zoom.min.js" integrity="sha512-8E9fPF4pjWxI0dpprpn4WYeciAMo2kh6xN0COFxvTfurMttjZzih/sBp+Fxu49Zr6IUSp4sqWY6KLecnqOCwxA==" crossorigin="anonymous"></script>
+<script src="https://cdn.plot.ly/plotly-1.54.6.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha512-uto9mlQzrs59VwILcLiRYeLKPPbS/bT71da/OEBYEwcdNUk8jYIy+D176RYoop1Da+f9mvkYrmj5MCLZWEtQuA==" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css" integrity="sha512-aOG0c6nPNzGk+5zjwyJaoRUgCdOrfSDhmMID2u4+OIslr0GjpLKo7Xm0Ao3xmpM4T8AmIouRkqwj1nrdVsLKEQ==" crossorigin="anonymous" />
 <!-- <script src='https://cdn.plot.ly/plotly-latest.min.js'></script> 
 <script src="https://d3js.org/d3.v4.js"></script>-->
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -35,6 +44,9 @@
     var reqstr5 = "http://localhost:5004/api/v1/interimstates";
     var reqstr6 = "http://localhost:5004/api/v1/galogs";
     var resp;
+    var chart1;
+    var chart2;
+    var threedplotrange;
 
 
     function init() {
@@ -160,6 +172,10 @@
       .catch(error => {showAlert(error,"alert-danger")});
     }
     
+    function transpose(matrix) {
+      return matrix[0].map((col, i) => matrix.map(row => row[i]));
+    }
+
     function updateScriptDesc(){
       var temp = document.getElementById("ct");
       var temp1 = document.getElementById("scriptdesc");
@@ -203,6 +219,18 @@
     function updateLogs(){
       var expname = document.getElementById("ct5");
       if (expname.value!=""){
+
+        var reqstr = "http://localhost:5004/api/v1/getexpdetails/"+expname.value.split('/')[2];
+        fetch(reqstr)
+        .then(res1 => {return res1.json()})
+        .then(data1 => {
+          document.getElementById("expinfo").innerHTML=data1.toString().replace("\", \"","\n").replace("\", \"","\n");
+          
+        })
+        .catch(error => {showAlert(error,"alert-danger")});
+
+
+
         var reqstr6 = "http://localhost:5004/api/v1/getlogs/"+expname.value.split('/')[2];
         fetch(reqstr6)
         .then(res1 => {return res1.json()})
@@ -217,11 +245,12 @@
           var canvas = document.createElement('canvas');
           var cont = document.getElementById('graph-container');
           var old = document.getElementById('myChart');
+          document.getElementById('explabel').innerHTML = expname.value.split('/')[2];
           old.remove();
           canvas.id = "myChart";
           cont.appendChild(canvas);
           var ctx = document.getElementById('myChart').getContext('2d');
-          var chart = new Chart(ctx, {
+          chart1 = new Chart(ctx, {
               // The type of chart we want to create
               type: 'bar',
 
@@ -251,6 +280,112 @@
                         labelString: 'Score'
                       }
                   }]
+                },
+            
+              plugins: {
+                zoom: {
+                  // Container for pan options
+                  pan: {
+                   // Boolean to enable panning
+                   enabled: false,
+
+                   // Panning directions. Remove the appropriate direction to disable
+                   // Eg. 'y' would only allow panning in the y direction
+                   // A function that is called as the user is panning and returns the
+                   // available directions can also be used:
+                   //   mode: function({ chart }) {
+                   //     return 'xy';
+                   //   },
+                   mode: 'xy',
+
+                   // Which of the enabled panning directions should only be available
+                   // when the mouse cursor is over one of scale.
+                   overScaleMode: 'xy',
+
+                   rangeMin: {
+                    // Format of min pan range depends on scale type
+                    x: null,
+                    y: null
+                   },
+                   rangeMax: {
+                    // Format of max pan range depends on scale type
+                    x: null,
+                    y: null
+                   },
+
+                   // On category scale, factor of pan velocity
+                   speed: 20,
+
+                   // Minimal pan distance required before actually applying pan
+                   threshold: 10,
+
+                   // Function called while the user is panning
+                   // onPan: function({chart}) { console.log(`I'm panning!!!`); },
+                   // // Function called once panning is completed
+                   // onPanComplete: function({chart}) { console.log(`I was panned!!!`); },
+                   // // Function called when pan fails because modifier key was not detected.
+                   // // event is the a hammer event that failed - see https://hammerjs.github.io/api#event-object
+                   // onPanRejected: function({chart, event}) { console.log(`I didn't start panning!`); }
+                  },
+
+                  // Container for zoom options
+                  zoom: {
+                   // Boolean to enable zooming
+                   enabled: true,
+
+                   // Enable drag-to-zoom behavior
+                   drag: true,
+
+                   // Drag-to-zoom effect can be customized
+                   // drag: {
+                   //   borderColor: 'rgba(225,225,225,0.3)'
+                   //   borderWidth: 5,
+                   //   backgroundColor: 'rgb(225,225,225)',
+                   //   animationDuration: 0
+                   // },
+
+                   // Zooming directions. Remove the appropriate direction to disable
+                   // Eg. 'y' would only allow zooming in the y direction
+                   // A function that is called as the user is zooming and returns the
+                   // available directions can also be used:
+                   //   mode: function({ chart }) {
+                   //     return 'xy';
+                   //   },
+                   mode: 'xy',
+
+                   // Which of the enabled zooming directions should only be available
+                   // when the mouse cursor is over one of scale.
+                   overScaleMode: 'xy',
+
+                   rangeMin: {
+                    // Format of min zoom range depends on scale type
+                    x: null,
+                    y: null
+                   },
+                   rangeMax: {
+                    // Format of max zoom range depends on scale type
+                    x: null,
+                    y: null
+                   },
+
+                   // Speed of zoom via mouse wheel
+                   // (percentage of zoom on a wheel event)
+                   speed: 1,
+
+                   // Minimal zoom distance required before actually applying zoom
+                   threshold: 2,
+
+                   // On category scale, minimal zoom level before actually applying zoom
+                   sensitivity: 3,
+
+                   // // Function called while the user is zooming
+                   // onZoom: function({chart}) { console.log(`I'm zooming!!!`); },
+                   // // Function called once zooming is completed
+                   // onZoomComplete: function({chart}) { console.log(`I was zoomed!!!`); },
+                   // // Function called when wheel input occurs without modifier key
+                   // onZoomRejected: function({chart, event}) { console.log(`I didn't start zooming!`); }
+                  }
+                 }
                 }
               }
           });
@@ -278,7 +413,7 @@
           canvas.id = "myChart2";
           cont.appendChild(canvas);
           var ctx = document.getElementById('myChart2').getContext('2d');
-          var chart = new Chart(ctx, {
+          chart2 = new Chart(ctx, {
               // The type of chart we want to create
               type: 'boxplot',
 
@@ -308,21 +443,362 @@
                         labelString: 'Score'
                       }
                   }]
+                },
+             
+              plugins: {
+              zoom: {
+                // Container for pan options
+                pan: {
+                 // Boolean to enable panning
+                 enabled: false,
+
+                 // Panning directions. Remove the appropriate direction to disable
+                 // Eg. 'y' would only allow panning in the y direction
+                 // A function that is called as the user is panning and returns the
+                 // available directions can also be used:
+                 //   mode: function({ chart }) {
+                 //     return 'xy';
+                 //   },
+                 mode: 'xy',
+
+                 // Which of the enabled panning directions should only be available
+                 // when the mouse cursor is over one of scale.
+                 overScaleMode: 'xy',
+
+                 rangeMin: {
+                  // Format of min pan range depends on scale type
+                  x: null,
+                  y: null
+                 },
+                 rangeMax: {
+                  // Format of max pan range depends on scale type
+                  x: null,
+                  y: null
+                 },
+
+                 // On category scale, factor of pan velocity
+                 speed: 20,
+
+                 // Minimal pan distance required before actually applying pan
+                 threshold: 10,
+
+                 // // Function called while the user is panning
+                 // onPan: function({chart}) { console.log(`I'm panning!!!`); },
+                 // // Function called once panning is completed
+                 // onPanComplete: function({chart}) { console.log(`I was panned!!!`); },
+                 // // Function called when pan fails because modifier key was not detected.
+                 // // event is the a hammer event that failed - see https://hammerjs.github.io/api#event-object
+                 // onPanRejected: function({chart, event}) { console.log(`I didn't start panning!`); }
+                },
+
+                // Container for zoom options
+                zoom: {
+                 // Boolean to enable zooming
+                 enabled: true,
+
+                 // Enable drag-to-zoom behavior
+                 drag: true,
+
+                 // Drag-to-zoom effect can be customized
+                 // drag: {
+                 //   borderColor: 'rgba(225,225,225,0.3)'
+                 //   borderWidth: 5,
+                 //   backgroundColor: 'rgb(225,225,225)',
+                 //   animationDuration: 0
+                 // },
+
+                 // Zooming directions. Remove the appropriate direction to disable
+                 // Eg. 'y' would only allow zooming in the y direction
+                 // A function that is called as the user is zooming and returns the
+                 // available directions can also be used:
+                 //   mode: function({ chart }) {
+                 //     return 'xy';
+                 //   },
+                 mode: 'xy',
+
+                 // Which of the enabled zooming directions should only be available
+                 // when the mouse cursor is over one of scale.
+                 overScaleMode: 'xy',
+
+                 rangeMin: {
+                  // Format of min zoom range depends on scale type
+                  x: null,
+                  y: null
+                 },
+                 rangeMax: {
+                  // Format of max zoom range depends on scale type
+                  x: null,
+                  y: null
+                 },
+
+                 // Speed of zoom via mouse wheel
+                 // (percentage of zoom on a wheel event)
+                 speed: 1,
+
+                 // Minimal zoom distance required before actually applying zoom
+                 threshold: 2,
+
+                 // On category scale, minimal zoom level before actually applying zoom
+                 sensitivity: 3,
+
+                 // // Function called while the user is zooming
+                 // onZoom: function({chart}) { console.log(`I'm zooming!!!`); },
+                 // // Function called once zooming is completed
+                 // onZoomComplete: function({chart}) { console.log(`I was zoomed!!!`); },
+                 // // Function called when wheel input occurs without modifier key
+                 // onZoomRejected: function({chart, event}) { console.log(`I didn't start zooming!`); }
                 }
+               }
               }
+            }
           });
         })
         .catch(error => {showAlert(error,"alert-danger")});
+
+        var reqstr6 = "http://localhost:5004/api/v1/getga3d/"+expname.value.split('/')[2]+"/max";
+        fetch(reqstr6)
+        .then(res1 => {return res1.json()})
+        .then(data1 => {
+          d=[];
+          toplot=data1.split('], [');
+          var arrayLength = toplot.length;
+          for (var i = 0; i < arrayLength; i++) {
+            // console.log(toplot[i]);
+            // toplot[i] = toplot[i].replace("[","").replace("]","");
+            // toplot[i] = toplot[i].replace("\"","");
+            d[i] = toplot[i].replace('[[','').replace(/"/g,'').replace(']]','').split(', ').map(Number);//parseFloat(toplot[i].split(", "));
+            // console.log(d[i]);
+          }  
+          
+          b = JSON.parse(JSON.stringify(d[3]));
+          b.sort((a,b) => a-b);
+          // Determine min/max of axes
+          x1 = JSON.parse(JSON.stringify(d[0]));
+          // x2 = d[0];
+          x1.sort((a,b) => a-b);
+          // x2.sort((a,b) => a-b);
+          y1 = JSON.parse(JSON.stringify(d[1]));
+          // y2 = d[1];
+          y1.sort((a,b) => a-b);
+          // y2.sort((a,b) => a-b);
+          z1 = JSON.parse(JSON.stringify(d[2]));
+          // z2 = d[2];
+          z1.sort((a,b) => a-b);
+          // z2.sort((a,b) => a-b);
+          xmin = x1[1];
+          xmax = parseFloat(x1[x1.length-1]);
+          // console.log(xmin, xmax);
+          // console.log(x1.join(','));
+          // console.log(x1.join(','));
+          ymin = y1[1];
+          ymax = parseFloat(y1[y1.length-1]);
+          // console.log(ymin, ymax);
+          zmin = z1[1];
+          zmax = parseFloat(z1[z1.length-1]);
+          // console.log(zmin, zmax);
+          threedplotrange = [[xmin, xmax],[ymin, ymax],[zmin, zmax]]
+          var plotDiv = document.getElementById("plot");
+            trace = {
+                x:d[0],
+                y:d[1],
+                z:d[2],
+                type: "scatter3d",
+                mode: 'markers',
+                text: d[3],
+                marker: {
+                    color: d[3],
+                    colorscale: 'jet',
+                    showscale:true
+                    // cmin: b[0],
+                    // cmax: parseFloat(b[b.length-1])
+                },
+                showscale: true,
+                colorbar: {
+                    z: 0
+                },
+            };
+
+            var layout = {
+                title: 'GA points',
+                autosize: true,
+                scene: {
+                    xaxis:{ title: 'x: TNF Frequency'},
+                            // range: [xmin,xmax]},
+                            // autorange: true,},
+
+                    yaxis:{ title: 'y: TNF Duration'},
+                            // range: [ymin,ymax]},
+                            // autorange: true,},
+
+                    zaxis:{ title: 'z: TNF Concentration'},
+                            // range: [zmin,zmax]}
+                            // autorange: true,},
+                },
+                margin: {
+                    l: 6.5,
+                    r: 5.0,
+                    b: 6.5,
+                    t: 30,
+                  },
+                colorscale: 'jet',
+                showscale: true,
+            };
+            var config = {responsive: true}
+            Plotly.newPlot(plotDiv,[trace],layout,config);
+            // console.log(b.join(','));
+            document.getElementById("vol").min = b[0];
+            document.getElementById("vol").max = parseFloat(b[b.length-1]);
+            document.getElementById("vol").value = parseFloat(b[b.length-1]);
+        })
+        .catch(error => {showAlert(error,"alert-danger")});
+
+
+
+        var reqstr6 = "http://localhost:5004/api/v1/getinds/"+expname.value.split('/')[2];
+        fetch(reqstr6)
+        .then(res1 => {return res1.json()})
+        .then(data1 => {
+          // console.log(data1);
+          // var files = [];
+          // data1.forEach(t => files.push(t.replace("../experiments/"+expname.value.split('/')[2]+"/figures/","").replace("ki_values.tsv","")));
+          // console.log(files);
+          // $('#individualstable').DataTable.destroy();
+          $('#individualstable').DataTable( {
+            destroy: true,
+            data: transpose(JSON.parse(data1)),
+            columns: [
+              { title: "Name" },
+              { title: "k5" },
+              { title: "k6" },
+              { title: "k7" },
+              { title: "Score" },
+              { title: "Details" },
+            ]
+          } );
+          // d=[];
+          // toplot=data1.split('], [');
+          
+        })
+        .catch(error => {showAlert(error,"alert-danger")});
+
 
 
       }
     }
 
 
+    function updateScatterPlot(expid, limit){
+      var reqstr7 = "http://localhost:5004/api/v1/getga3d/"+expid+"/"+limit; //TODO
+        fetch(reqstr7)
+        .then(res1 => {return res1.json()})
+        .then(data1 => {
+          d=[];
+          toplot=data1.split('], [');
+          var arrayLength = toplot.length;
+          for (var i = 0; i < arrayLength; i++) {
+            d[i] = toplot[i].replace('[[','').replace(/"/g,'').replace(']]','').split(', ').map(Number);//parseFloat(toplot[i].split(", "));
+            console.log(d[i]);
+          }  
+          var plotDiv = document.getElementById("plot");
+          var trace = {
+                x:[d[0]],
+                y:[d[1]],
+                z:[d[2]],
+                text:[d[3]],
+                marker: {
+                    color: d[3],
+                    colorscale: 'jet',
+                    showscale:true
+                },
+                showscale: true,
+                colorbar: {
+                    z: 0
+                  }
+            };
+            var layout = {
+                title: 'GA points',
+                autosize: true,
+                scene: {
+                    xaxis:{ title: 'x: TNF Frequency'},
+                            // range: [xmin,xmax]},
+                            // autorange: true,},
+
+                    yaxis:{ title: 'y: TNF Duration'},
+                            // range: [ymin,ymax]},
+                            // autorange: true,},
+
+                    zaxis:{ title: 'z: TNF Concentration'},
+                            // range: [zmin,zmax]}
+                            // autorange: true,},
+                },
+            };
+            Plotly.update(plotDiv,trace,layout,0);
+        })
+        .catch(error => {showAlert(error,"alert-danger")});
+    }
 
     // function randomValues(count, min, max) {
     //   const delta = max - min;
     //   return Array.from({length: count}).map(() => Math.random() * delta + min);
+    // }
+
+    function rangeChanged(){
+        document.getElementById("vols").innerHTML = document.getElementById("vol").value;
+        updateScatterPlot(document.getElementById("ct5").value.split('/')[2],document.getElementById("vol").value);
+    }
+
+
+    function getpng(id){
+        var reqstr8 = "http://localhost:5004/api/v1/getpng/"+id; //TODO
+        fetch(reqstr8)
+        .then(res1 => {return res1.json()})
+        .then(data1 => {
+          showAlert(data1,"alert-info");
+          var div = document.createElement("div");
+          div.innerHTML = data1;
+          // var infoBox = new DialogBox(div);
+          $(div).dialog();
+        })
+        .catch(error => {showAlert(error,"alert-danger")});
+    }
+
+    function getcsv(id){
+        var reqstr8 = "http://localhost:5004/api/v1/getcsv/"+id; //TODO
+        fetch(reqstr8)
+        .then(res1 => {return res1.json()})
+        .then(data1 => {
+          showAlert(data1,"alert-info");
+           })
+        .catch(error => {showAlert(error,"alert-danger")});
+    }
+    // function lockChanged(){
+    //     // console.log("checked checkbox")
+    //     check = document.getElementById("checklock");
+    //     if (check.checked){
+    //       console.log("checked checkbox");
+    //       var plotDiv = document.getElementById("plot");
+    //           // layout = {
+    //           //       xaxis:{ range: threedplotrange[0], autorange: false},
+    //           //       yaxis:{ range: threedplotrange[1], autorange: false},
+    //           //       zaxis:{ range: threedplotrange[2], autorange: false},
+    //           // };
+    //       var update = {
+    //           title: 'some new title', // updates the title
+    //           'xaxis.range': [threedplotrange[0]], 
+    //           'xaxis.autorange': false,  // updates the xaxis range
+    //           'yaxis.range': [threedplotrange[1]], 
+    //           'yaxis.autorange': false,     // updates the end of the yaxis range
+    //           'zaxis.range': [threedplotrange[2]],
+    //           'zaxis.autorange': false, 
+    //       };
+    //       Plotly.relayout(plotDiv, update)
+    //       console.log([threedplotrange[0],threedplotrange[1],threedplotrange[2]])
+    //           // Plotly.update(plotDiv,{},[layout],0);
+    //     }
+    //     else {
+    //       updateScatterPlot(document.getElementById("ct5").value.split('/')[2],document.getElementById("vol").value);
+    //       console.log("unchecked checkbox");
+    //     }
     // }
 
     function showAlert(message, alertType){
@@ -360,9 +836,13 @@
     function output(str) {
       var log = document.getElementById("log");
       var escaped = str.replace(/&/, "&amp;").replace(/</, "&lt;").
-        replace(/>/, "&gt;").replace(/"/, "&quot;").replace('\n','<br/>'); 
+        replace(/>/, "&gt;").replace(/"/, "&quot;");
       log.innerHTML = "<small class=\"text-muted\">[" + datetimenow() + "]:</small> " + document.getElementById("cmd").value + '\n' + escaped + log.innerHTML + '\n<br/>';
     }
+
+    // $(document).ready( function () {
+    //   $('#individualstable').DataTable();
+    // } );
   </script>
 </head>
 <body onload="init();">
@@ -378,6 +858,9 @@
   </li>
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="graphs-tab" data-bs-toggle="tab" data-bs-target="#graphs" type="button" role="tab" aria-controls="graphs" aria-selected="false">Graphs</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#individuals" type="button" role="tab" aria-controls="profile" aria-selected="false">Individuals</button>
   </li>
   <li class="nav-item" role="presentation">
     <button class="nav-link" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab" aria-controls="profile" aria-selected="false">Terminal</button>
@@ -454,17 +937,53 @@
     <select id="ct5" onchange="updateLogs()">
         <option></option>
     </select>
-    <div class="container-fluid" id="graph-container" style="width:50%;">
-        <canvas id="myChart"></canvas>
+    <pre id="expinfo">
+    </pre>
+    <div class=row>
+      <div class="container-fluid" id="graph-container" style="width:50%;">
+          <canvas id="myChart"></canvas><br/><input type="submit" value="Reset" onclick="chart1.resetZoom()">
+      </div>
+      <div class="container-fluid" id="graph-container2" style="width:50%;">
+          <canvas id="myChart2"></canvas><br/><input type="submit" value="Reset" onclick="chart2.resetZoom()">
+      </div>
     </div>
-    <div class="container-fluid" id="graph-container2" style="width:50%;">
-        <canvas id="myChart2"></canvas>
+    <div class="row">
+      <div class="container-fluid" id="graph-container3" style="width:80%;">
+        <div id = "plot" style="background-color:white;"></div>
+        <label for="vol">Fetch max score:</label>
+        <input type="range" id="vol" name="vol" min="0" max="50" onchange="rangeChanged()">
+        <label id="vols"></label>
+        <!--<label for="vol">Lock axes</label>
+        <input type="checkbox" id="checklock" onchange="lockChanged()">-->
+      </div>
     </div>
 
   </div>
 
   <!--
-      Third Tab "TERMINAL"
+      Third Tab "INDIVIDUALS"
+  -->
+  <div class="tab-pane fade" id="individuals" role="tabpanel" aria-labelledby="profile-tab">
+  <!--<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>-->
+    <div>
+      <h2 id="explabel">
+        select an experiment from Graphs tab
+      </h2>
+      <!-- <form onsubmit="runTerm(); return false;">
+        <input type="text" id="cmd" name="cmd">
+        <input type="submit" value="Run terminal commands">
+      </form> -->
+      <hr>
+      <div id="inddetails">
+        <table id="individualstable" class="display" width="100%"></table>
+      </div>
+      </pre>
+    </div>
+  </div>
+
+
+  <!--
+      Fourth Tab "TERMINAL"
   -->
   <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
   <!--<div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">...</div>-->
@@ -476,8 +995,8 @@
         <input type="submit" value="Run terminal commands">
       </form>
       <hr>
-      <div id="log" style="white-space: pre-wrap;width:100%;">
-      </div>
+      <pre id="log" style="white-space: pre-wrap;width:100%;">
+      </pre>
     </div>
   </div>
 

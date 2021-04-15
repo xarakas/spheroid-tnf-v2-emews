@@ -78,6 +78,18 @@ if __name__ == '__main__':
     def listgalogs():
         return jsonify(glob.glob("../experiments/*/generations.log"))
 
+    @app.route('/api/v1/getpng/<id>', methods=['GET'])
+    def getgapng(id):
+        return jsonify("requested png for {}".format(id))
+
+    @app.route('/api/v1/getexpdetails/<id>', methods=['GET'])
+    def getexpdetails(id):
+        return jsonify(parsing.getexpdetails(id))
+
+    @app.route('/api/v1/getcsv/<id>', methods=['GET'])
+    def getgacsv(id):
+        return jsonify("requested csv for {}".format(id))
+
     @app.route('/api/v1/getlogs/<id>', methods=['GET'])
     def listlogbyid(id):
         return jsonify(parsing.getgatimecourse(id))
@@ -85,6 +97,14 @@ if __name__ == '__main__':
     @app.route('/api/v1/getgalogbook/<id>', methods=['GET'])
     def listlogbookbyid(id):
         return jsonify(parsing.getgalogbook(id))
+
+    @app.route('/api/v1/getga3d/<id>/<limit>', methods=['GET'])
+    def list3dbyid(id, limit):
+        return jsonify(parsing.getga3d(id,limit))
+
+    @app.route('/api/v1/getinds/<id>', methods=['GET'])
+    def listindsbyid(id):
+        return jsonify(parsing.getindividuals(id))
 
     @app.route('/api/v1/upload', methods=['GET','POST'])
     def upload_file():
