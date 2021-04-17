@@ -152,6 +152,7 @@ def getindividuals(id):
     k1 = []
     k2 = []
     k3 = []
+    k4 = []
     score = []
     geta = []
     g = glob.glob("../experiments/"+id+"/figures/*ki_values.tsv")
@@ -160,14 +161,34 @@ def getindividuals(id):
         tmp = fh.readlines()
         fh.close()
         temp=str.split(tmp[1],'\t')
-        n.append(str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv",""))
-        k1.append(temp[1])
-        k2.append(temp[2])
-        k3.append(temp[3])
-        score.append(getindscore(id,temp[1],temp[2],temp[3]))
-        geta.append("<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv","") + "\" value=\"PNG\" onclick=\"getpng(this.id)\">" + "<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv","") + "\" value=\"CSV\" onclick=\"getcsv(this.id)\">")
+        if len(temp)==4:
+            n.append(str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv",""))
+            k1.append(temp[1])
+            k2.append(temp[2])
+            k3.append(temp[3])
+            tmp2 = [temp[1],temp[2],temp[3]]
+            score.append(getindscore(id,temp[1],temp[2],temp[3]))
+            geta.append("<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/","") \
+                ,"ki_values.tsv","") + "\" value=\"PNG\" onclick=\"getpng(this.id," + str(tmp2) + ")\">" + \
+                 "<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv","") \
+                  + "\" value=\"CSV\" onclick=\"getcsv(this.id)\">")
+            return json.dumps([n,k1,k2,k3,score,geta])
 
-    return json.dumps([n,k1,k2,k3,score,geta])
+        elif len(temp)==5:
+            n.append(str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv",""))
+            k1.append(temp[1])
+            k2.append(temp[2])
+            k3.append(temp[3])
+            k4.append(temp[4])
+            tmp2 = [temp[1],temp[2],temp[3],temp[4]]
+            score.append(getindscore(id,temp[1],temp[2],temp[3],temp[4]))
+            geta.append("<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/","") \
+                ,"ki_values.tsv","") + "\" value=\"PNG\" onclick=\"getpng(this.id," + str(tmp2) + ")\">" + \
+                 "<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv","") \
+                  + "\" value=\"CSV\" onclick=\"getcsv(this.id)\">")
+            return json.dumps([n,k1,k2,k3,k4,score,geta])
+
+    
 
 
 def getindscore(id, k1, k2, k3):

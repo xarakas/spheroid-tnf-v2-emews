@@ -32,9 +32,10 @@
 
 
   <script type="text/javascript">
-    window.onbeforeunload = function(e) {
-      return "Do you really want to exit?";
-    };
+    // /* CONFIRM EXIT */
+    // window.onbeforeunload = function(e) {
+    //   return "Do you really want to exit?";
+    // };
 
     var ws;
     var reqstr1 = "http://localhost:5004/api/v1/listscripts";
@@ -658,7 +659,7 @@
         fetch(reqstr6)
         .then(res1 => {return res1.json()})
         .then(data1 => {
-          // console.log(data1);
+          console.log(data1.split("], [").length);
           // var files = [];
           // data1.forEach(t => files.push(t.replace("../experiments/"+expname.value.split('/')[2]+"/figures/","").replace("ki_values.tsv","")));
           // console.log(files);
@@ -748,16 +749,27 @@
     }
 
 
-    function getpng(id){
-        var reqstr8 = "http://localhost:5004/api/v1/getpng/"+id; //TODO
+    function getpng(id, values){
+        var expname = document.getElementById("ct5");
+        var reqstr8 = "http://localhost:5004/api/v1/getpng/"+ expname.value.split('/')[2] + '/'+ id; //TODO
         fetch(reqstr8)
-        .then(res1 => {return res1.json()})
-        .then(data1 => {
-          showAlert(data1,"alert-info");
-          var div = document.createElement("div");
-          div.innerHTML = data1;
+        .then(res1 => {return res1.blob()})
+        .then(blob => {
+          // showAlert(data1,"alert-info");
+          var div = document.createElement("div")
+          div.id = id+"pngdiv";
+          div.title = values;
+          var imgtag = document.createElement("img");        
+          
+          imgtag.id = id+"png";
+          imgtag.style.height = "100%";
+          imgtag.style.width = "100%";
+          var img = URL.createObjectURL(blob);
+          imgtag.setAttribute('src', img);
           // var infoBox = new DialogBox(div);
-          $(div).dialog();
+          document.getElementsByTagName('body')[0].appendChild(div);
+          document.getElementById(div.id).appendChild(imgtag);
+          $('#'+div.id).dialog();
         })
         .catch(error => {showAlert(error,"alert-danger")});
     }

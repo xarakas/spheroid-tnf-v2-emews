@@ -5,7 +5,9 @@ import glob
 import parsing
 import os 
 import time, json, subprocess, sys, os, re
-from flask import flash, request, redirect, url_for, jsonify
+# from PIL import Image
+# from io import StringIO
+from flask import flash, abort, request, redirect, url_for, jsonify, send_file
 from flask_kafka import FlaskKafka
 from werkzeug.utils import secure_filename
 
@@ -78,9 +80,19 @@ if __name__ == '__main__':
     def listgalogs():
         return jsonify(glob.glob("../experiments/*/generations.log"))
 
-    @app.route('/api/v1/getpng/<id>', methods=['GET'])
-    def getgapng(id):
-        return jsonify("requested png for {}".format(id))
+    @app.route('/api/v1/getpng/<expname>/<id>', methods=['GET'])
+    def image(expname, id):
+        try:
+            filename = "../experiments/{}/figures/{}variables_vs_time.png".format(expname,id)
+            return send_file(filename, mimetype='image/gif')
+
+        except IOError as e:
+            print(e)
+            abort(404)
+
+        # return send_from_directory('.', filename)
+    # def getgapng(id):
+    #     return jsonify("requested png for {}".format(id))
 
     @app.route('/api/v1/getexpdetails/<id>', methods=['GET'])
     def getexpdetails(id):

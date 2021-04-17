@@ -86,8 +86,8 @@ def main():
     k2 = custom_data[0].firstChild.nodeValue
     custom_data = doc.getElementsByTagName("concentration_tnf")
     k3 = custom_data[0].firstChild.nodeValue
-    custom_data = doc.getElementsByTagName("rate")
-    k4 = custom_data[0].firstChild.nodeValue
+    # custom_data = doc.getElementsByTagName("rate")
+    # k4 = custom_data[0].firstChild.nodeValue
 
     output_data = instance_folder + 'output/'
 
@@ -125,7 +125,7 @@ def main():
     ax2.set_ylim([0, 1000])
     axes[2].legend(loc="upper left")
     ax2.legend(loc="upper right")
-    fig.suptitle('k_1:{}, k_2:{}, k_3:{}, k_4:{}'.format(k1,k2,k3,k4))#, fontsize=16)
+    fig.suptitle('k_1:{}, k_2:{}, k_3:{}'.format(k1,k2,k3))#, fontsize=16)
 
     fig.tight_layout()
     fig.savefig(instance_folder + 'variables_vs_time.png')
@@ -139,7 +139,7 @@ def main():
     df_time_course.to_csv(os.path.join(persistpath, s[-2]+"time_course.tsv"), sep="\t")
     df_cell_variables.to_csv(os.path.join(persistpath, s[-2]+"cell_variables.tsv"), sep="\t")
     df_time_tnf.to_csv(os.path.join(persistpath, s[-2]+"tnf_time.tsv"), sep="\t")
-    k_df = pd.DataFrame([[k1, k2, k3, k4]], columns = ['k1', 'k2', 'k3', 'k4'])
+    k_df = pd.DataFrame([[k1, k2, k3]], columns = ['k1', 'k2', 'k3'])
     k_df.to_csv(os.path.join(persistpath, s[-2]+"ki_values.tsv"), sep="\t")
 
 main()
