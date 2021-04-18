@@ -36,6 +36,7 @@ def getgatimecourse(id):
     # print(scores)
     return json.dumps(scores[2*gen_size::2*gen_size])
 
+
 def getexpdetails(id):
     fh = open(os.path.join('../experiments/',id,"generations.log"))
     tmp = fh.readlines()
@@ -119,7 +120,7 @@ def getga3d(id, limit):
         
         if scores_index == 5:
             # scores.append([temp[scores_index-3],temp[scores_index-2],temp[scores_index-1],temp[scores_index]])
-            if float(temp[5])>=limit:
+            if float(temp[5])>limit:
                 continue
             else:
                 # print(newlines[line])
@@ -130,7 +131,7 @@ def getga3d(id, limit):
                 f.append(temp[5])
         else:
             # scores.append([temp[scores_index-4],temp[scores_index-3],temp[scores_index-2],temp[scores_index-1],temp[scores_index]])
-            if float(temp[6])>=limit:
+            if float(temp[6])>limit:
                 continue
             else:
                 x.append(temp[2])
@@ -155,13 +156,20 @@ def getindividuals(id):
     k4 = []
     score = []
     geta = []
-    g = glob.glob("../experiments/"+id+"/figures/*ki_values.tsv")
+    g = glob.glob("../experiments/" + id + "/figures/*ki_values.tsv")
+    resolve = open(g[0])
+    resl = resolve.readlines()
+    resolve.close()
+    if len(str.split(resl[1],'\t')) == 4:
+        cal = False
+    else:
+        cal = True
     for file in g:
         fh = open(file)
         tmp = fh.readlines()
         fh.close()
         temp=str.split(tmp[1],'\t')
-        if len(temp)==4:
+        if not cal: #CHANGE
             n.append(str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv",""))
             k1.append(temp[1])
             k2.append(temp[2])
@@ -172,9 +180,9 @@ def getindividuals(id):
                 ,"ki_values.tsv","") + "\" value=\"PNG\" onclick=\"getpng(this.id," + str(tmp2) + ")\">" + \
                  "<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv","") \
                   + "\" value=\"CSV\" onclick=\"getcsv(this.id)\">")
-            return json.dumps([n,k1,k2,k3,score,geta])
+    # return json.dumps([n,k1,k2,k3,score,geta])
 
-        elif len(temp)==5:
+        else:
             n.append(str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv",""))
             k1.append(temp[1])
             k2.append(temp[2])
@@ -186,10 +194,13 @@ def getindividuals(id):
                 ,"ki_values.tsv","") + "\" value=\"PNG\" onclick=\"getpng(this.id," + str(tmp2) + ")\">" + \
                  "<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv","") \
                   + "\" value=\"CSV\" onclick=\"getcsv(this.id)\">")
-            return json.dumps([n,k1,k2,k3,k4,score,geta])
+        #     return json.dumps([n,k1,k2,k3,k4,score,geta])
+    if cal:
+        return json.dumps([n,k1,k2,k3,k4,score,geta])
+    else:
+        return json.dumps([n,k1,k2,k3,score,geta])
 
     
-
 
 def getindscore(id, k1, k2, k3):
     fh = open(os.path.join('../experiments/',id,"generations.log"))
