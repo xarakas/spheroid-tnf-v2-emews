@@ -169,13 +169,13 @@ def getindividuals(id):
         tmp = fh.readlines()
         fh.close()
         temp=str.split(tmp[1],'\t')
-        if not cal: #CHANGE
+        if not cal: 
             n.append(str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv",""))
             k1.append(temp[1])
             k2.append(temp[2])
             k3.append(temp[3])
             tmp2 = [temp[1],temp[2],temp[3]]
-            score.append(getindscore(id,temp[1],temp[2],temp[3]))
+            score.append(getindscore(id,tmp2))
             geta.append("<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/","") \
                 ,"ki_values.tsv","") + "\" value=\"PNG\" onclick=\"getpng(this.id," + str(tmp2) + ")\">" + \
                  "<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv","") \
@@ -189,7 +189,7 @@ def getindividuals(id):
             k3.append(temp[3])
             k4.append(temp[4])
             tmp2 = [temp[1],temp[2],temp[3],temp[4]]
-            score.append(getindscore(id,temp[1],temp[2],temp[3],temp[4]))
+            score.append(getindscore(id,tmp2))
             geta.append("<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/","") \
                 ,"ki_values.tsv","") + "\" value=\"PNG\" onclick=\"getpng(this.id," + str(tmp2) + ")\">" + \
                  "<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv","") \
@@ -202,7 +202,7 @@ def getindividuals(id):
 
     
 
-def getindscore(id, k1, k2, k3):
+def getindscore(id, k):
     fh = open(os.path.join('../experiments/',id,"generations.log"))
     tmp = fh.readlines()
     fh.close()
@@ -211,21 +211,53 @@ def getindscore(id, k1, k2, k3):
     gen_size=int(str.split(gen_size,' ')[3])
     if '[None]' in lines[2]:
         score_index=5
+        k1 = k[0].strip()
+        k2 = k[1].strip()
+        k3 = k[2].strip()
+        newlines = []
+        finallines = [] 
+        j=0
+        for line in range(4, len(lines)):
+            # print(k1,k2,k3)
+            # print(lines[line])
+            if not (k1 in lines[line] and k2 in lines[line] and k3 in lines[line]):
+                # print(type(k3), len(k3), k3)
+                # for i in k3:
+                #     print(i)
+                # print(type(lines[line]), len(lines[line]), lines[line])
+                # print(k3 in lines[line])
+                continue
+            else:
+                lines[line] = lines[line].replace(' ','')
+                lines[line] = lines[line].replace('[','')
+                lines[line] = lines[line].replace('],(',',')
+                lines[line] = lines[line].replace(',)','')
+                # df = df.append(str.split(lines[line],','), ignore_index=True)
+                # print("GOT iT")
+                return str.split(lines[line],',')[score_index]
     else:
         score_index=6
-    newlines = []
-    finallines = [] 
-    j=0
-    for line in range(4, len(lines)):
-        if not (k1 in lines[line] and k2 in lines[line] and k3 in lines[line]):
-            continue
-        else:
-            lines[line] = lines[line].replace(' ','')
-            lines[line] = lines[line].replace('[','')
-            lines[line] = lines[line].replace('],(',',')
-            lines[line] = lines[line].replace(',)','')
-            # df = df.append(str.split(lines[line],','), ignore_index=True)
-            return str.split(lines[line],',')[score_index]
+        k1 = k[0].strip()
+        k2 = k[1].strip()
+        k3 = k[2].strip()
+        k4 = k[3].strip()
+        newlines = []
+        finallines = [] 
+        j=0
+        for line in range(4, len(lines)):
+            # print(k1,k2,k3,k4)
+            # print(lines[line])
+            if not (k1 in lines[line] and k2 in lines[line] and k3 in lines[line] and k4 in lines[line]):
+                continue
+            else:
+                lines[line] = lines[line].replace(' ','')
+                lines[line] = lines[line].replace('[','')
+                lines[line] = lines[line].replace('],(',',')
+                lines[line] = lines[line].replace(',)','')
+                # df = df.append(str.split(lines[line],','), ignore_index=True)
+                # print("GOT iT")
+                return str.split(lines[line],',')[score_index]
+    
     # print(newlines)
     # print(finallines)
     # return json.dumps(finallines)

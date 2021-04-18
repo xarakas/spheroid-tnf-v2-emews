@@ -659,23 +659,47 @@
         fetch(reqstr6)
         .then(res1 => {return res1.json()})
         .then(data1 => {
-          console.log(data1.split("], [").length);
+          // console.log(data1.split("], [").length);
+          // console.log(data1.split("], ["));
           // var files = [];
           // data1.forEach(t => files.push(t.replace("../experiments/"+expname.value.split('/')[2]+"/figures/","").replace("ki_values.tsv","")));
           // console.log(files);
           // $('#individualstable').DataTable.destroy();
-          $('#individualstable').DataTable( {
-            destroy: true,
-            data: transpose(JSON.parse(data1)),
-            columns: [
-              { title: "Name" },
-              { title: "k5" },
-              { title: "k6" },
-              { title: "k7" },
-              { title: "Score" },
-              { title: "Details" },
-            ]
-          } );
+          if (data1.split("], [").length==6) {
+              // $('#individualstable').DataTable().clear().destroy();
+              $('#individualstable').DataTable( {
+                clear: true,
+                destroy: true,
+                data: transpose(JSON.parse(data1)),
+                columns: [
+                  { title: "Name" },
+                  { title: "k5" },
+                  { title: "k6" },
+                  { title: "k7" },
+                  { title: "Score" },
+                  { title: "Details" },
+                ]
+              } );
+          }
+          else
+          {
+
+              // $('#individualstable').DataTable().clear().destroy();
+              $('#individualstable').DataTable( {
+                clear: true,
+                destroy: true,
+                data: transpose(JSON.parse(data1)),
+                columns: [
+                  { title: "Name" },
+                  { title: "k1" },
+                  { title: "k2" },
+                  { title: "k3" },
+                  { title: "k4" },
+                  { title: "Score" },
+                  { title: "Details" },
+                ]
+              } );
+          }
           // d=[];
           // toplot=data1.split('], [');
           
