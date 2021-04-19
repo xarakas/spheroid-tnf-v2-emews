@@ -665,10 +665,28 @@
           // data1.forEach(t => files.push(t.replace("../experiments/"+expname.value.split('/')[2]+"/figures/","").replace("ki_values.tsv","")));
           // console.log(files);
           // $('#individualstable').DataTable.destroy();
+          // $('#individualstable').find("tbody").empty();
+          // if ($('#individualstable').DataTable!=null) {
+          // try{
+          //   $('#individualstable').DataTable({clear:true});
+          //   $('#individualstable').DataTable({destroy:true});
+          //   $('#individualstable' + " tbody").empty();
+          //   $('#individualstable' + " thead").empty();
+          // }
+          // catch(e){
+          //   showAlert(e,"alert-danger");
+          // }
+          $('#individualstable').remove();
+          var div = document.createElement("table")
+          div.id = "individualstable";
+          div.width = "100%";
+          div.class = "display"
+          document.getElementById("inddetails").appendChild(div);
+          // }
           if (data1.split("], [").length==6) {
               // $('#individualstable').DataTable().clear().destroy();
               $('#individualstable').DataTable( {
-                clear: true,
+                // clear: true,
                 destroy: true,
                 data: transpose(JSON.parse(data1)),
                 columns: [
@@ -686,7 +704,7 @@
 
               // $('#individualstable').DataTable().clear().destroy();
               $('#individualstable').DataTable( {
-                clear: true,
+                // clear: true,
                 destroy: true,
                 data: transpose(JSON.parse(data1)),
                 columns: [
