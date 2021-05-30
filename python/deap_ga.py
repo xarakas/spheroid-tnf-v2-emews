@@ -47,7 +47,7 @@ class Transformer:
         # individual into a temporary list and mutate though until the
         # constraint was satisfied
         for i, param in enumerate(self.ga_params):
-            individual = param.mutate(population[i], mu=0, indpb=indpb)          
+            individual = param.mutate(population[i], mu=0, indpb=indpb)
             population[i] = individual
 
         return population,
@@ -74,7 +74,7 @@ class Transformer:
             for row in reader:
                 init_params.append(dict(zip(header,row)))
         return init_params
-        
+
 def printf(val):
     print(val)
     sys.stdout.flush()
@@ -118,7 +118,7 @@ def queue_map(obj_func, pops):
     split_result = result.split(';')
     # TODO determine if max'ing or min'ing and use -9999999 or 99999999
     return [(float(x),) if not math.isnan(float(x)) else (float(99999999),) for x in split_result]
-    
+
     #return [(float(x),) for x in split_result]
 
 def make_random_parameters():
@@ -257,7 +257,7 @@ def eaSimpleExtended(population, toolbox, cxpb, mutpb, term, ngen, stats=None,
             for ind, fit in zip(invalid_ind, fitnesses):
                 ind.fitness.values = fit
                 visited_inds[str(ind)] = fit
-            
+
             # Update the hall of fame with the generated individuals
             if halloffame is not None:
                 halloffame.update(offspring)
@@ -350,6 +350,21 @@ def run():
     toolbox.register("map", queue_map)
 
     pop = toolbox.population(n=pop_num)
+    # fileDir = os.path.dirname(os.path.realpath('__file__'))
+    fileDir = os.getcwd()
+
+    # '../interesting_points.txt'
+    printf(fileDir)
+    try:
+        with open(os.path.join(fileDir, '../../python/interesting_points.txt')) as f:
+            init_pop = json.load(f)
+        i=0
+        for individ in init_pop:
+            pop[i] = creator.Individual(individ)
+            i=i+1
+        printf("Loaded initial population")
+    except:
+        printf("Initial population is random")
 
     hof = tools.HallOfFame(pop_num)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
@@ -375,4 +390,3 @@ def run():
     # return the final population
     eqpy.OUT_put("{}\n{}\n{}\n{}\n{}".format(create_list_of_json_strings(pop), ';'.join(fitnesses),
         start_time, log, end_time))
-

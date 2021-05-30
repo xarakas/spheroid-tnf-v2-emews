@@ -1,4 +1,4 @@
-import os, sys, glob, json
+import os, sys, glob
 from scipy.spatial import distance
 import numpy as np
 import xml.dom.minidom
@@ -33,7 +33,7 @@ def get_tumor_cell_count(instance_dir):
         with open(fname) as f_in:
             tumor_cell_count = '-1'
             file_lines.append(f_in.readlines()[-1].strip())
-        file_lines.reverse() 
+        file_lines.reverse()
         items = file_lines[0].split("\t")
         if len(items) > 1:
             tumor_cell_count = items[1]
@@ -42,27 +42,65 @@ def get_tumor_cell_count(instance_dir):
 
 def get_custom_cell_count(instance_dir):
     """
-    @return tumor cell count value from fname or -2, if file doesn't exist, or
-    -1 if run terminated prematurely.
+    @return the percentage of tumor cells that are still alive or -2 if file doesn't exist,
+    or -1 if run terminated prematurely
     """
     output = '-2'
     fname = '{}/metrics.txt'.format(instance_dir)
+    # if os.path.exists(fname):
+    #     file_lines = []
+    #     with open(fname) as f_in:
+    #         output = '-1'
+    #         file_lines.append(f_in.readlines()[-1].strip())
+    #     items0 = file_lines[0].split("\t")
+    #     if len(items0) > 1:
+    #         tumor_cell_count0 = int(items0[1])
+    #         death_cell_count0 = int(items0[2])
+    #         necrosis_cell_count0 = int(items0[3])
+    #         #total_cells0 = tumor_cell_count0 + death_cell_count0 + necrosis_cell_count0
+    #
+    #
+    #     file_lines.reverse()
+    #     items = file_lines[0].split("\t")
+    #     if len(items) > 1:
+    #         tumor_cell_count = int(items[1])
+    #         death_cell_count = int(items[2])
+    #         necrosis_cell_count = int(items[3])
+    #         total_cells = tumor_cell_count + death_cell_count + necrosis_cell_count
+    #
+    #         # tumor_percent = tumor_cell_count * 100 / total_cells
+    #         # necrosis_percent = necrosis_cell_count * 100 / total_cells
+    #         output = tumor_cell_count/tumor_cell_count0
+    #
+    # return output
+
     if os.path.exists(fname):
-        file_lines = []
+        # file_lines = []
         with open(fname) as f_in:
             output = '-1'
-            file_lines.append(f_in.readlines()[-1].strip())
+            file_lines= f_in.readlines()
+
+        items0 = file_lines[0].strip().split("\t")
+
+        #items0 = file_lines[0].split("\t")
+        if len(items0) > 1:
+            tumor_cell_count0 = int(items0[1])
+            death_cell_count0 = int(items0[2])
+            necrosis_cell_count0 = int(items0[3])
+            #total_cells0 = tumor_cell_count0 + death_cell_count0 + necrosis_cell_count0
+
+
         file_lines.reverse()
-        items = file_lines[0].split("\t")
+        items = file_lines[0].strip().split("\t")
         if len(items) > 1:
             tumor_cell_count = int(items[1])
             death_cell_count = int(items[2])
             necrosis_cell_count = int(items[3])
             total_cells = tumor_cell_count + death_cell_count + necrosis_cell_count
 
-            tumor_percent = tumor_cell_count * 100 / total_cells
-            necrosis_percent = necrosis_cell_count * 100 / total_cells
-            output = tumor_percent - necrosis_percent
+            # tumor_percent = tumor_cell_count * 100 / total_cells
+            # necrosis_percent = necrosis_cell_count * 100 / total_cells
+            output = tumor_cell_count/tumor_cell_count0
 
     return output
 
@@ -76,23 +114,20 @@ def get_simulation_dist(instance_dir, replication, emews_root):
     -1 if run terminated prematurely.
     """
     experiment_folder = os.getenv('TURBINE_OUTPUT')
-    with open(os.path.join(experiment_folder,'..','..',os.getenv('GA_CONFIG_FILE'))) as f:
-        ga_config = json.load(f)
-    distance_type_id = ga_config['distance_type']
+    distance_type_id = os.getenv('DISTANCE_TYPE_ID')
     logpath = os.path.join(instance_dir,'..','verbose_scores.log')
     logging.basicConfig(format='%(message)s',filename=logpath,level=logging.DEBUG)
     output = '-2'
     output2 = '-2'
     output3 = '-3'
     fname = '{}/metrics.txt'.format(instance_dir)
-    #logging.info("fname: {}".format(fname))
     if os.path.exists(fname):
         file_lines = []
         with open(fname) as f_in:
             output = '-1'
             tmp = f_in.readlines()
             file_lines = [x.strip() for x in tmp]
-        # file_lines.reverse() 
+        # file_lines.reverse()
         check = file_lines[-1].split("\t")
         if len(check) > 1:
             time_points = []
@@ -101,10 +136,10 @@ def get_simulation_dist(instance_dir, replication, emews_root):
             necrosis_cells = []
             for i in range(len(file_lines)):
                 items = file_lines[i].split("\t")
-                time_points.append(int(float(items[0])))
-                tumor_cells.append(int(float(items[1])))
-                death_cells.append(int(float(items[2])))
-                necrosis_cells.append(int(float(items[3])))
+                time_points.append(int(items[0]))
+                tumor_cells.append(int(items[1]))
+                death_cells.append(int(items[2]))
+                necrosis_cells.append(int(items[3]))
 
             # Find and parse corresponding original csv
             for i, f in enumerate(sorted(glob.glob(emews_root+'/data/original_physiboss_timeseries/*.csv'))):
@@ -116,18 +151,11 @@ def get_simulation_dist(instance_dir, replication, emews_root):
                     alive = []
                     apoptotic = []
                     necrotic = []
-                    if len(lines)>50:
-                        for i in time_points:
-                            data = lines[int(i)+1].split('\t')
-                            alive.append(float(data[2]))
-                            apoptotic.append(float(data[3]))
-                            necrotic.append(float(data[4]))
-                    else:
-                        for i in range(1,len(lines)):
-                            data = lines[int(i)].split('\t')
-                            alive.append(float(data[2]))
-                            apoptotic.append(float(data[3]))
-                            necrotic.append(float(data[4]))
+                    for i in time_points:
+                        data = lines[int(i)+1].split('\t')
+                        alive.append(float(data[2]))
+                        apoptotic.append(float(data[3]))
+                        necrotic.append(float(data[4]))
                     norm_val = max(alive)
                     alive[:] = [x / norm_val for x in alive]
                     apoptotic[:] = [x / norm_val for x in apoptotic]
@@ -175,4 +203,3 @@ def get_simulation_dist(instance_dir, replication, emews_root):
         return output3
     else:
         return output
-
