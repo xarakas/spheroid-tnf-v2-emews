@@ -28,10 +28,9 @@ with open(os.path.join(experiment_folder,'..','..',os.getenv('RAND_CONFIG_FILE')
 clustering_method = rand_config['method']
 param1 = rand_config['param1'] #KMEANS->k, DBSCAN->eps, BIRCH->branching factor
 param2 = rand_config['param2'] #KMEANS->Nothing, DBSCAN->MinPts, BIRCH->threshold
-
+previous_simulations = rand_config['prev_results']
 transformer = None
-fileDir = os.getcwd()
-previous_results_file = os.path.join(fileDir, '../../python/all_exps_DD.csv')
+
 # previous_results_file = '/gpfs/scratch/bsc08/bsc08646/vasilis/spheroid-tnf-v2-emews/python/all_exps_DD.csv'
 
 #
@@ -169,9 +168,15 @@ def run():
     # num_iter-1 generations since the initial population is evaluated once first
     start_time = time.time()
 
-    evaluated_points_from_file = {}
-
-    file_to_dict(previous_results_file,evaluated_points_from_file)
+    if previous_simulations == "YES":
+        fileDir = os.getcwd()
+        previous_results_file = os.path.join(fileDir, '../../python/all_exps_DD.csv')
+        evaluated_points_from_file = {}
+        file_to_dict(previous_results_file,evaluated_points_from_file)
+        printf("Loaded previous simulations results")
+    else:
+        evaluated_points_from_file = {}
+        printf("No previous simulations results were provided")
 
     #dictionary to save already evaluated points of this run and their results
     evaluated_points = {}

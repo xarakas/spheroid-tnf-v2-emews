@@ -148,9 +148,10 @@ The parameters of the active learning algorithm are set in the `RAND_CONFIG` fil
 
 {
 
-    "method" : "BIRCH", // Can either be 'BIRCH', 'DBSCAN', or 'KMEANS'
-    "param1" : 100,     // KMEANS->k, DBSCAN->eps, BIRCH->branching factor
-    "param2" : 0.1      // KMEANS->None, DBSCAN->MinPts, BIRCH->threshold
+    "method" : "BIRCH",     // Can either be 'BIRCH', 'DBSCAN', or 'KMEANS'
+    "param1" : 100,         // KMEANS->k, DBSCAN->eps, BIRCH->branching factor
+    "param2" : 0.1,         // KMEANS->None, DBSCAN->MinPts, BIRCH->threshold
+    "prev_results": "YES"   // 'YES' if results from past experiments are used
 
 }
 

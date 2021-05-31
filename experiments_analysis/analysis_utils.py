@@ -163,7 +163,7 @@ def create_plot(figures_dir,it,grid,predictions,selected_points,labels,selected_
     ax1.set_ylabel("TNF Frequency")
     ax1.set_xlabel("TNF Duration'")
     ax1.set_zlabel("TNF Concentration")
-    ax1.set_title("Selected points before distance threshold")
+    ax1.set_title("Selected points")
     ax1.set_box_aspect((1, 1, 1))
 
     ax2 = fig.add_subplot(122, projection='3d')
@@ -179,7 +179,7 @@ def create_plot(figures_dir,it,grid,predictions,selected_points,labels,selected_
     ax2.set_ylabel("TNF Frequency")
     ax2.set_xlabel("TNF Duration'")
     ax2.set_zlabel("TNF Concentration")
-    ax2.set_title("Parameters Valuated via Simulation")
+    ax2.set_title("Simulations results")
     ax2.legend()
     ax2.set_box_aspect((1, 1, 1))
     plt.savefig(os.path.join(temp_path,"selected_points_it_{}_fig.png".format(it)),bbox_inches = 'tight', pad_inches = 0)
