@@ -4,14 +4,14 @@
         "type" : "int",
         "lower" : 10,
         "upper" : 1200,
-        "sigma": 0.01
+        "sigma": 10
     },    
     {
         "name" : "user_parameters.duration_add_tnf",
         "type" : "int",
         "lower" : 5,
         "upper" : 30,
-        "sigma": 0.01
+        "sigma": 5
     },    
     {
         "name" : "user_parameters.concentration_tnf",
