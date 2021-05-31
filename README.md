@@ -157,7 +157,7 @@ The parameters of the active learning algorithm are set in the `RAND_CONFIG` fil
 
 The random seed of the experiment conducted and the number of the initial population is set in the `swift/swift_run_eqpy_rand.sh` file.
 
-Results from past experiments are used in order to reduce the runtime of the active learning scenario. These results can be found at `all_exps_DD.csv` csv file in the `python` folder.
+Results from past experiments can used in order to reduce the runtime of the active learning scenario. These results should be provided with a csv file named `all_exps_DD.csv` csv file in the `python` folder.
 
 ### Important note:
 .sh files in the `swift/` folder  set various environment parameters for the execution.
