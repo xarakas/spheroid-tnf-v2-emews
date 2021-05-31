@@ -116,6 +116,8 @@ Again, a params file should be given, see e.g. `data/inputs.txt`:
 <CHECKPOINT_FILE> is optional, and contains the GA state from a previous run (stored automatically inside the experiment folder `experiments/`.
 Logs regarding time, individuals examined and their fitness scores can be found in `experiments/<EXPERIMENT_ID>/generations.log`.
 
+In the seeded scenario, in which a part of the initial population is set by the user, a txt file named `interesting_points.txt` containing the initial point must be provided in the `python` folder. If no such file is provided, then the initial population is created at random.
+
 ###### Simulated Annealing
 `$ bash swift/swift_run_eqpy_sa.sh <EXPERIMENT_ID> <SA_PARAMS_FILE> <SA_CONFIG>`
 (e.g. bash swift/swift_run_eqpy_sa.sh experiment_1 data/ga_params.json data/sa_config.json)
@@ -133,7 +135,8 @@ The parameters of the simulated annealing method are set in the `SA_CONFIG` file
 
 }
 
-If seeded_pop is set to "YES", a txt file containing the initial point must be provided in the `python` folder.
+If seeded_pop is set to "YES", a txt file named `best_point.txt` containing the initial point must be provided in the `python` folder.
+
 ##### Active learning scenario
 `$ bash swift/swift_run_eqpy_rand.sh <EXPERIMENT_ID> <RAND_PARAMS_FILE> <RAND_CONFIG>`
 (e.g. bash swift/swift_run_eqpy_rand.sh experiment_1 data/ga_params.json data/rand_config.json)
