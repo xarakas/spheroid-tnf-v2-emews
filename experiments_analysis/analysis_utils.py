@@ -405,29 +405,6 @@ def count_uncertain(predictions):
     count = len([1 for i in uncertainty if i >=0.4])
     return count
 
-
-
-# def plot_uncertain_file(figures_dir,filename):
-#     with open(filename,'r',newline='') as csv_file:
-#         for line in csv_file:
-#             line_e = line.split(',')
-#             cluster = line_e[0]
-#             del line_e[0]
-#             line_e = list(map(float, line_e))
-#             iterations = [str(i) for i in range(1,len(line_e)+1)]
-#             # line_e = line_e[:22]
-#             # iterations = iterations[:22]
-#             plt.plot(iterations,line_e,label=cluster)
-#     plt.suptitle("Number of uncertain points per iteration")
-#     plt.ylabel("Number of Points over uncertainty threshold")
-#     plt.xlabel("Number of Iterations")
-#     plt.legend()
-#     plt.tight_layout()
-#     # plt.show()
-#     plt.savefig(os.path.join(figures_dir,"Uncertain_per_iter.png"),bbox_inches = 'tight', pad_inches = 0)
-#
-#     return
-
 def plot_uncertain_file(figures_dir,filename):
     file = pd.read_csv(filename,header=None,index_col=False)
     file = file.iloc[:, : 21]
@@ -450,57 +427,6 @@ def plot_uncertain_file(figures_dir,filename):
     plt.savefig(os.path.join(figures_dir,"Uncertain_per_iter.png"),bbox_inches = 'tight', pad_inches = 0)
     plt.close(fig)
     return
-
-# def plot_simulations_file(figures_dir,filename):
-#
-#     clusters = []
-#     total_sims_list = []
-#     with open(filename,'r',newline='') as csv_file:
-#         for line in csv_file:
-#             line_e = line.split(',')
-#             cluster = line_e[0]
-#             clusters.append(cluster)
-#             del line_e[0]
-#             line_e = list(map(float, line_e))
-#             total_sims = sum(line_e)
-#             total_sims_list.append(total_sims)
-#
-#     x = np.arange(len(clusters))
-#     width = 0.35
-#     fig, ax = plt.subplots()
-#     ax.bar(x, total_sims_list, width)
-#     ax.set_ylabel('Total Simulations')
-#     ax.set_title('Total Simulations per Clustering Method')
-#     ax.set_xticks(x)
-#     ax.set_xticks(x)
-#     ax.set_xticklabels(clusters)
-#     fig.tight_layout()
-#     plt.savefig(os.path.join(figures_dir,"Total_sims.png"),bbox_inches = 'tight', pad_inches = 0)
-#
-#     fig = plt.figure()
-#     ax1 = fig.add_subplot(111)
-#     with open(filename,'r',newline='') as csv_file:
-#         for line in csv_file:
-#             line_e = line.split(',')
-#             cluster = line_e[0]
-#             del line_e[0]
-#             line_e = list(map(float, line_e))
-#             iterations = [str(i) for i in range(1,len(line_e)+1)]
-#             ax1.plot(iterations,line_e,label=cluster)
-#         ax1.set_yscale('log')
-#         plt.suptitle("Number of simulations per iteration")
-#         plt.ylabel("Number of Simulations")
-#         plt.xlabel("Number of Iterations")
-#         box = ax.get_position()
-#         # ax.set_position([box.x0, box.y0 + box.height * 0.1,box.width, box.height * 0.9])
-#         # ax1.legend(loc='upper center', bbox_to_anchor=(0.5, -0.1),fancybox=True, ncol=5)
-#         ax1.legend(bbox_to_anchor=(1, 1), loc='upper left', borderaxespad=0.)
-#         # plt.legend(prop={'size': 7})
-#         # plt.tight_layout()
-#         # plt.show()
-#         plt.savefig(os.path.join(figures_dir,"Sims_per_iter.png"),bbox_inches = 'tight', pad_inches = 0)
-#
-#     return
 
 def plot_simulations_file(figures_dir,filename,final_sims_file):
     file = pd.read_csv(filename,header=None,index_col=False)

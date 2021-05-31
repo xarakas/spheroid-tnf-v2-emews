@@ -2,12 +2,11 @@
 
 set -eu
 
-if [ "$#" -lt 3 ]; then
+if [ "$#" -ne 3 ]; then
   script_name=$(basename $0)
-  echo "Usage: ${script_name} EXPERIMENT_ID SA_PARAMS_FILE SA_CONFIG_FILE CHECKPOINT_FILE"
-  echo "(e.g. ${script_name} experiment_1 data/sa_params.json data/ga_config.json path/to/sa_checkpoint.pkl)"
-  echo "SA_CONFIG_FILE mandatory argument pointing to a .json with corresponding GA hyperparameters"
-  echo "CHECKPOINT_FILE (optional): path to a .pkl file to continue a previous experiment"
+  echo "Usage: ${script_name} EXPERIMENT_ID SA_PARAMS_FILE SA_CONFIG_FILE"
+  echo "(e.g. ${script_name} experiment_1 data/sa_params.json data/sa_config.json"
+  echo "SA_CONFIG_FILE mandatory argument pointing to a .json with corresponding SA hyperparameters"
   exit 1
   # script_name=$(basename $0)
   # echo "Usage: ${script_name} EXPERIMENT_ID GA_PARAMS_FILE TERMINATION_CRIT POP_NUM CROSSOVER_PROB MUTATION_PROB TOURNAMENT_SIZE CHECKPOINT_FILE"
@@ -28,11 +27,6 @@ fi
 export EMEWS_PROJECT_ROOT=$( cd $( dirname $0 )/.. ; /bin/pwd )
 # source some utility functions used by EMEWS in this script
 source "${EMEWS_PROJECT_ROOT}/etc/emews_utils.sh"
-
-
-if [ "$#" -eq 4 ]; then
-  export CHECKPOINT_FILE=$EMEWS_PROJECT_ROOT/$4
-fi
 
 export EXPID=$1
 export TURBINE_OUTPUT=$EMEWS_PROJECT_ROOT/experiments/$EXPID
