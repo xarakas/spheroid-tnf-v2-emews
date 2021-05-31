@@ -2,7 +2,7 @@
     "distance_type" : "None",
     "termination_crit" : "genmax",
     "termination_args" : 30,
-    "pop_num" : 40,
+    "pop_num" : 50,
     "crossover_prob": 0.75,
     "mutation_prob": 0.5,
     "tournament_size": 3
