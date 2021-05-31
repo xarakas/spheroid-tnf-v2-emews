@@ -53,3 +53,7 @@ turbine-output
 
 # VS code settings
 .vscode
+
+# OS generated files #
+.DS_Store
+.DS_Store?
