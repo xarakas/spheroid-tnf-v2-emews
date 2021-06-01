@@ -1,0 +1,8 @@
+{
+
+  "method" : "BIRCH",
+  "param1" : 100,
+  "param2" : 0.1,
+  "prev_results": "YES"
+  
+}

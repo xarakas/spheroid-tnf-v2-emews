@@ -4,8 +4,21 @@ set -eu
 
 if [ "$#" -ne 3 ]; then
   script_name=$(basename $0)
-  echo "Usage: ${script_name} EXPERIMENT_ID RF_PARAMS_FILE RAND_CONFIG_FILE (e.g. ${script_name} experiment_1 data/rf_params.json data/rand_config.json)"
+  echo "Usage: ${script_name} EXPERIMENT_ID SA_PARAMS_FILE SA_CONFIG_FILE"
+  echo "(e.g. ${script_name} experiment_1 data/sa_params.json data/sa_config.json"
+  echo "SA_CONFIG_FILE mandatory argument pointing to a .json with corresponding SA hyperparameters"
   exit 1
+  # script_name=$(basename $0)
+  # echo "Usage: ${script_name} EXPERIMENT_ID GA_PARAMS_FILE TERMINATION_CRIT POP_NUM CROSSOVER_PROB MUTATION_PROB TOURNAMENT_SIZE CHECKPOINT_FILE"
+  # echo "(e.g. ${script_name} experiment_1 data/ga_params.json 30 50 0.75 0.5 3 path/to/ga_checkpoint.pkl)"
+  # echo "TERMINATION_CRIT: if integer is given, then max number of generations,"
+  # echo "                  else is lower limit of population fitness variance for 5 consecutive generations"
+  # echo "POP_NUM: integer, number of individuals in the population"
+  # echo "CROSSOVER_PROB: float \\in [0,1] - probability for applying the crossover operator,"
+  # echo "MUTATION_PROB: float \\in [0,1] - probability for applying the mutation operator,"
+  # echo "TOURNAMENT_SIZE: number of individuals to inclide in each tournament for selection"
+  # echo "CHECKPOINT_FILE (optional): path to a .pkl file to continue a previous experiment"
+  # exit 1
 fi
 
 # uncomment to turn on swift/t logging. Can also set TURBINE_LOG,
@@ -15,21 +28,25 @@ export EMEWS_PROJECT_ROOT=$( cd $( dirname $0 )/.. ; /bin/pwd )
 # source some utility functions used by EMEWS in this script
 source "${EMEWS_PROJECT_ROOT}/etc/emews_utils.sh"
 
-
 export EXPID=$1
 export TURBINE_OUTPUT=$EMEWS_PROJECT_ROOT/experiments/$EXPID
-
 check_directory_exists
 
-export RAND_CONFIG_FILE=$3
-# TODO edit the number of processes as required.
-export PROCS=72
+export SA_CONFIG_FILE=$3
+# export TERMINATION_CRIT=$3
+# export POP_NUM=$4
+# export CROSSOVER_PROB=$5
+# export MUTATION_PROB=$6
+# export TOURNAMENT_SIZE=$7
+
+# TODO edit the number of processes as required (must be more than 3).
+export PROCS=60
 
 # TODO edit QUEUE, WALLTIME, PPN, AND TURNBINE_JOBNAME
 # as required. Note that QUEUE, WALLTIME, PPN, AND TURNBINE_JOBNAME will
 # be ignored if MACHINE flag (see below) is not set
 export QUEUE=main
-export WALLTIME=24:00:00
+export WALLTIME=48:00:00
 export PPN=12
 export TURBINE_JOBNAME="${EXPID}_job"
 
@@ -57,25 +74,22 @@ mkdir -p $TURBINE_OUTPUT
 
 EXECUTABLE_SOURCE=$EMEWS_PROJECT_ROOT/data/PhysiBoSSv2/spheroid_TNF_v2
 DEFAULT_XML_SOURCE=$EMEWS_PROJECT_ROOT/data/PhysiBoSSv2/config/*
-RF_PARAMS_FILE_SOURCE=$2
+SA_PARAMS_FILE_SOURCE=$2
 
 EXECUTABLE_OUT=$TURBINE_OUTPUT/spheroid_TNF
 DEFAULT_XML_OUT=$TURBINE_OUTPUT
-RF_PARAMS_FILE_OUT=$TURBINE_OUTPUT/TNF_v2_rf_params.json
+SA_PARAMS_FILE_OUT=$TURBINE_OUTPUT/TNF_v2_ga_params.json
 
 cp $EXECUTABLE_SOURCE $EXECUTABLE_OUT
 cp -r $DEFAULT_XML_SOURCE $DEFAULT_XML_OUT
-cp $RF_PARAMS_FILE_SOURCE $RF_PARAMS_FILE_OUT
+cp $SA_PARAMS_FILE_SOURCE $SA_PARAMS_FILE_OUT
 
-SEED=1234 # Do not change SEED for this RF exploration code
-VARIATIONS=1 # Number of variations
-ITERATIONS=20 # Number of iterations
-ESTIMATORS=500 # Classification trees to be combined for a random forest
-INIT_POINTS=100 # Points added to initial trainning dataset
-NUM_POINTS=20 # Upper bound on points to be evaluated per iteration (NOT USED)
+SEED=1234
+ITERATIONS=15
+REPLICATIONS=1
+NUM_POPULATION=150
 
-
-CMD_LINE_ARGS="$* -seed=$SEED -ni=$ITERATIONS -nv=$VARIATIONS -ne=$ESTIMATORS -nip=$INIT_POINTS -np=$NUM_POINTS -exe=$EXECUTABLE_OUT -settings=$DEFAULT_XML_OUT/PhysiCell_settings.xml -rf_parameters=$RF_PARAMS_FILE_OUT"
+CMD_LINE_ARGS="$* -seed=$SEED -ni=$ITERATIONS -nv=$REPLICATIONS -np=$NUM_POPULATION -exe=$EXECUTABLE_OUT -settings=$DEFAULT_XML_OUT/PhysiCell_settings.xml -sa_parameters=$SA_PARAMS_FILE_OUT"
 
 # Uncomment this for the BG/Q:
 #export MODE=BGQ QUEUE=default
@@ -98,5 +112,5 @@ log_script
 
 # echo's anything following this to standard out
 set -x
-SWIFT_FILE=swift_run_eqpy_rand.swift
+SWIFT_FILE=swift_run_eqpy_sa.swift
 swift-t -n $PROCS $MACHINE -p -I $EQPY -r $EQPY $EMEWS_PROJECT_ROOT/swift/$SWIFT_FILE $CMD_LINE_ARGS
