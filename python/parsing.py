@@ -42,7 +42,13 @@ def getexpdetails(id):
     tmp = fh.readlines()
     fh.close()
     lines = [x.strip() for x in tmp]
-    return json.dumps([lines[0],lines[1],lines[2]])
+    par_names = []
+    with open(os.path.join('../experiments/',id,"TNF_v2_ga_params.json")) as f:
+      d = json.load(f)
+      for elem in d:
+        if elem["name"]:
+          par_names.append(elem["name"])
+    return json.dumps([lines[0],lines[1],lines[2], par_names])
     
 
 def getgalogbook(id):
@@ -149,6 +155,7 @@ def getga3d(id, limit):
 
 
 def getindividuals(id):
+    l = []
     n = []
     k1 = []
     k2 = []
@@ -175,6 +182,10 @@ def getindividuals(id):
             k2.append(temp[2])
             k3.append(temp[3])
             tmp2 = [temp[1],temp[2],temp[3]]
+            l.append("<input type=\"checkbox\" id=\""+str.replace(str.replace(file,"../experiments/"+id+"/figures/","") \
+                ,"ki_values.tsv","")+"_row\" name=\""+str.replace(str.replace(file,"../experiments/"+id+"/figures/","") \
+                ,"ki_values.tsv","")+"_row\" value=\""+str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv","") \
+                +"_row\">")
             score.append(getindscore(id,tmp2))
             geta.append("<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/","") \
                 ,"ki_values.tsv","") + "\" value=\"PNG\" onclick=\"getpng(this.id," + str(tmp2) + ")\">" + \
@@ -189,6 +200,10 @@ def getindividuals(id):
             k3.append(temp[3])
             k4.append(temp[4])
             tmp2 = [temp[1],temp[2],temp[3],temp[4]]
+            l.append("<input type=\"checkbox\" id=\""+str.replace(str.replace(file,"../experiments/"+id+"/figures/","") \
+                ,"ki_values.tsv","")+"_row\" name=\""+str.replace(str.replace(file,"../experiments/"+id+"/figures/","") \
+                ,"ki_values.tsv","")+"_row\" value=\""+str.replace(str.replace(file,"../experiments/"+id+"/figures/",""),"ki_values.tsv","") \
+                +"_row\">")
             score.append(getindscore(id,tmp2))
             geta.append("<input type=\"submit\" id=\"" + str.replace(str.replace(file,"../experiments/"+id+"/figures/","") \
                 ,"ki_values.tsv","") + "\" value=\"PNG\" onclick=\"getpng(this.id," + str(tmp2) + ")\">" + \
@@ -196,9 +211,9 @@ def getindividuals(id):
                   + "\" value=\"CSV\" onclick=\"getcsv(this.id)\">")
         #     return json.dumps([n,k1,k2,k3,k4,score,geta])
     if cal:
-        return json.dumps([n,k1,k2,k3,k4,score,geta])
+        return json.dumps([l,n,k1,k2,k3,k4,score,geta])
     else:
-        return json.dumps([n,k1,k2,k3,score,geta])
+        return json.dumps([l,n,k1,k2,k3,score,geta])
 
     
 

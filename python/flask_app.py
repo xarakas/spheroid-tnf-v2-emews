@@ -19,34 +19,34 @@ app.secret_key = "dsyHbaej998jj86wgsu__sdsTs51321bioUC1cal4124"
 
 INTERRUPT_EVENT = Event()
 
-bus = FlaskKafka(INTERRUPT_EVENT,
-                 bootstrap_servers=",".join(["45.10.26.123:19092"]),
-                 group_id="ncsr-test",
-                 auto_offset_reset='earliest'
-                 )
+# bus = FlaskKafka(INTERRUPT_EVENT,
+#                  bootstrap_servers=",".join(["45.10.26.123:19092"]),
+#                  group_id="ncsr-test",
+#                  auto_offset_reset='earliest'
+#                  )
 
-# Register termination listener
-def listen_kill_server():
-    signal.signal(signal.SIGTERM, bus.interrupted_process)
-    signal.signal(signal.SIGINT, bus.interrupted_process)
-    signal.signal(signal.SIGQUIT, bus.interrupted_process)
-    signal.signal(signal.SIGHUP, bus.interrupted_process)
+# # Register termination listener
+# def listen_kill_server():
+#     signal.signal(signal.SIGTERM, bus.interrupted_process)
+#     signal.signal(signal.SIGINT, bus.interrupted_process)
+#     signal.signal(signal.SIGQUIT, bus.interrupted_process)
+#     signal.signal(signal.SIGHUP, bus.interrupted_process)
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+# def allowed_file(filename):
+#     return '.' in filename and \
+#            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# Handle message received from a Kafka topic
-@bus.handle('testing')
-def test_topic_handler(msg):
-    print("consumed {} from test-topic".format(msg))
+# # Handle message received from a Kafka topic
+# @bus.handle('testing')
+# def test_topic_handler(msg):
+#     print("consumed {} from test-topic".format(msg))
 
 
 if __name__ == '__main__':
     # Start consuming from the Kafka server
     # bus.run()
     # Termination listener
-    listen_kill_server()
+    # listen_kill_server()
     # Start Flask server
     @app.route('/', methods=['GET'])
     def home():
@@ -118,6 +118,25 @@ if __name__ == '__main__':
     def listindsbyid(id):
         return jsonify(parsing.getindividuals(id))
 
+    @app.route('/api/v1/createbootstrappop', methods=['POST'])
+    def createpop():
+        # print(json.loads(request.data))
+        tofile = json.loads(request.data)
+        with open('./interesting_points.json', 'w') as outfile:
+            json.dump(tofile, outfile)
+        with open('./interesting_points.txt', 'w') as outfile2:
+            a =[]
+            for subitem in tofile:
+                b=[]
+                pairs = subitem.items()
+                for key, value in pairs:
+                    b.append(float(value))
+                a.append(b)
+            outfile2.write(str(a))
+        return jsonify("OK")
+    #def listindsbyid(id):
+    #    return jsonify(parsing.getindividuals(id))
+
     @app.route('/api/v1/upload', methods=['GET','POST'])
     def upload_file():
         # check if the post request has the file part
@@ -141,12 +160,12 @@ if __name__ == '__main__':
     @app.route('/api/v1/run', methods=['GET','POST'])
     def run():
         if request.method == 'POST':
-            #start exp
+            #start exp TODO
             print(str(request.data))
             res = json.loads(request.data)
             return jsonify("Experiment " + res['expname'] + " submitted!")
         else:
-            #query status
+            #query status TODO
             return jsonify("queried status")
 
     @app.route('/api/v1/termrun', methods=['GET','POST'])

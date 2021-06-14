@@ -676,20 +676,22 @@
           // catch(e){
           //   showAlert(e,"alert-danger");
           // }
-          $('#individualstable').remove();
+          var tab = document.getElementById("individualstable")
+          tab.parentNode.removeChild(tab);
           var div = document.createElement("table")
           div.id = "individualstable";
           div.width = "100%";
           div.class = "display"
           document.getElementById("inddetails").appendChild(div);
           // }
-          if (data1.split("], [").length==6) {
+          if (data1.split("], [").length==7) {
               // $('#individualstable').DataTable().clear().destroy();
               $('#individualstable').DataTable( {
                 // clear: true,
                 destroy: true,
                 data: transpose(JSON.parse(data1)),
                 columns: [
+                  { title: "Select" },
                   { title: "Name" },
                   { title: "k5" },
                   { title: "k6" },
@@ -708,6 +710,7 @@
                 destroy: true,
                 data: transpose(JSON.parse(data1)),
                 columns: [
+                  { title: "Select" },
                   { title: "Name" },
                   { title: "k1" },
                   { title: "k2" },
@@ -790,6 +793,37 @@
         updateScatterPlot(document.getElementById("ct5").value.split('/')[2],document.getElementById("vol").value);
     }
 
+    function createBootstrapPop(){
+      var indtable = document.getElementById("individualstable").rows;
+      ii = 0;
+      var finalJSON = [];
+      format = document.getElementById("expinfo").innerHTML.split('[')
+      fstrings = format[format.length-1].replace(/]/g,'');
+      fstringi = fstrings.split(',');
+      for (let item of indtable) {
+        if (ii>0){
+          // console.log(item);
+          if (item.cells[0].firstChild.checked){
+            // console.log(item);
+            var jsonVariable = {};     
+            for(l=0; l<fstringi.length; l++) {  
+              var jsonKey  = fstringi[l];
+              jsonVariable[jsonKey] = item.cells[2+l].innerHTML.replace('\n','');
+              // console.log(item.cells[2+l].innerHTML);
+            }
+            finalJSON.push(jsonVariable);
+          }
+        }
+          ii = ii + 1;
+      }
+      // console.log(finalJSON);
+      var reqstr = "http://localhost:5004/api/v1/createbootstrappop"; //TODO
+      fetch(reqstr, {method: "POST", body: JSON.stringify(finalJSON)})
+      .then(res1 => {return res1.json()})
+      .then(data1 => {showAlert(data1,"alert-info")})
+      .catch(error => {showAlert(error,"alert-danger")});
+      // console.log("create bootstrap pop");
+    }
 
     function getpng(id, values){
         var expname = document.getElementById("ct5");
@@ -1031,7 +1065,10 @@
       <div id="inddetails">
         <table id="individualstable" class="display" width="100%"></table>
       </div>
-      </pre>
+        <div>
+          <button type="button" onclick="createBootstrapPop()">Create Bootstrap Population</button>
+        </div>
+      <!-- </pre> -->
     </div>
   </div>
 
