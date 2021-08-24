@@ -253,7 +253,7 @@ def run():
                 k_means = KMeans(n_clusters=param1, random_state=0).fit(np.array(candidate_points))
                 labels = k_means.labels_
 
-                for k in range(num_population):
+                for k in range(param1):
                     points_k = [p for i, p in enumerate(candidate_points) if labels[i] == k]
                     selected_points.append(points_k[0])
 
