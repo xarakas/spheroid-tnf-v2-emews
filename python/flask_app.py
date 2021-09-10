@@ -3,8 +3,9 @@ from threading import Event
 import signal
 import glob
 import parsing
-import os 
+import os
 import time, json, subprocess, sys, os, re
+import paramiko
 # from PIL import Image
 # from io import StringIO
 from flask import flash, abort, request, redirect, url_for, jsonify, send_file
@@ -159,14 +160,64 @@ if __name__ == '__main__':
 
     @app.route('/api/v1/run', methods=['GET','POST'])
     def run():
+        f = open('./credentials.json',)
+        cred = json.load(f) #credentials
+        print("Run function!!!")
+        #open ssh connection
+        c = paramiko.SSHClient()
+        c.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        print ("ssh: connecting")
+        c.connect( hostname = cred['hostname'], username = cred['username'], password = cred['password'])
+        print ("ssh: connected")
+        ######
         if request.method == 'POST':
             #start exp TODO
             print(str(request.data))
             res = json.loads(request.data)
+            #commands = "module load python java R/3.4.0 swiftt/1.4.3; cd /gpfs/scratch/bsc08/bsc08646/eleni/spheroid-tnf-v2-emews/"
+            commands = "module load python java R/3.4.0 swiftt/1.4.3; cd "
+            commands = commands + res['path']
+            #bash swift/swift_run_eqpy_compare.sh <EXPERIMENT_ID> <GA_PARAMS_FILE> <GA_CONFIG> <CHECKPOINT_FILE>
+            if (res['interimresults'] == ""):
+                print("No checkpoints provided")
+                command = ";bash " + "./swift/" + res['scriptname'] + " " + res['expname'] + " " + "data/" + res['inputfile'] + " " + "data/" + res['conffile']
+            else:
+                command = ";bash " + "./swift/" + res['scriptname'] + " " + res['expname'] + " " + res['inputfile'] + " " + res['conffile'] + " " + res['interimresults']
+            commands = [commands + command]
+            for command in commands:
+                print ("Executing {}".format( command ))
+                stdin , stdout, stderr = c.exec_command(command)
+                print("After Executing")
+                print (stdout.read())
+                print("After Executing2")
+                print( "Errors")
+                print (stderr.read())
+                print("After Executing3")
+
+
+            # print ("Executing {}".format( commands ))
+            # stdin , stdout, stderr = c.exec_command(commands)
+            # print (stdout.read())
+            # print( "Errors")
+            # print (stderr.read())
+            c.close()
+            print ("close ssh connection")
             return jsonify("Experiment " + res['expname'] + " submitted!")
+
         else:
             #query status TODO
-            return jsonify("queried status")
+            command = "squeue"
+            print ("Executing {}".format( command ))
+            stdin , stdout, stderr = c.exec_command(command)
+            output = stdout.read().decode()
+            errors = stderr.read().decode()
+            print (output)
+            print( "Errors")
+            print (errors)
+            c.close()
+            print ("close ssh connection")
+            #return (json.dumps((stdout.read().decode())))
+            return jsonify(output)
 
     @app.route('/api/v1/termrun', methods=['GET','POST'])
     def termrun():
@@ -179,7 +230,7 @@ if __name__ == '__main__':
             for cm in cmd:
                 if cm=="sudo" or cm=="rm" or cm=="mkfs.ext4" or cm=="shred" or cm=="dd" or cm=="mv" or cm==":():&":
                     return "Unsupported command: \"{}\"\n".format(request.data.decode("utf-8"))
-            try: 
+            try:
                 p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                 return p.stdout
             except FileNotFoundError as e:
@@ -192,5 +243,5 @@ if __name__ == '__main__':
                 return p.stdout
             except FileNotFoundError as e:
                 return "{}".format(e)
-    
+
     app.run(debug=True, port=5004)
