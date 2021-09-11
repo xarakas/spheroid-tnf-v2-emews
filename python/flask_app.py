@@ -182,7 +182,7 @@ if __name__ == '__main__':
                 print("No checkpoints provided")
                 command = ";bash " + "./swift/" + res['scriptname'] + " " + res['expname'] + " " + "data/" + res['inputfile'] + " " + "data/" + res['conffile']
             else:
-                command = ";bash " + "./swift/" + res['scriptname'] + " " + res['expname'] + " " + "data/" + res['inputfile'] + " " + + "data/" res['conffile'] + " " + res['interimresults']
+                command = ";bash " + "./swift/" + res['scriptname'] + " " + res['expname'] + " " + "data/" + res['inputfile'] + " " + "data/" + res['conffile'] + " " + res['interimresults']
             commands = [commands + command]
             for command in commands:
                 print ("Executing {}".format( command ))
